@@ -1,9 +1,5 @@
 // api/archive-blueprint.js
 // Vercel Serverless Function — ingen package.json behövs
-// Sparar planritningar i Vercel Blob via REST API (fetch inbyggt i Node 18+)
-//
-// Miljövariabel som krävs (sätts automatiskt när du aktiverar Blob i Vercel):
-//   BLOB_READ_WRITE_TOKEN
 
 const BLUEPRINT_KEYWORDS = ["planritning","planlosning","planlösning","plan_","_plan","floor","ritning","skiss","blueprint","alternativ"];
 const PHOTO_KEYWORDS     = ["fasad","badrum","kök","kok","sovrum","vardagsrum","hall","balkong","portrait","staff","agent"];
@@ -13,8 +9,6 @@ const BROWSER_HEADERS = {
   "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
   "Accept-Language": "sv-SE,sv;q=0.9,en-US;q=0.8",
 };
-
-// ── Hjälpfunktioner ───────────────────────────────────────────────
 
 function toId(str = "") {
   return str.toLowerCase()
@@ -28,31 +22,63 @@ function blueprintScore(url = "", label = "") {
   for (const kw of BLUEPRINT_KEYWORDS) if (text.includes(kw)) score += 10;
   for (const kw of PHOTO_KEYWORDS)     if (text.includes(kw)) score -= 5;
   if (/planritning/i.test(label)) score += 15;
+  // MED-bildnamn = Vitec CDN, planritningen brukar ligga sist i galleriet
+  // Vi inkluderar alla men sorterar — foton filtreras bort via score
   return score;
 }
 
 function extractImages(html, baseUrl) {
   const images = [];
   const seen   = new Set();
-  const attrRe = /(?:src|data-src|data-lazy-src)=["']([^"']+\.(?:jpg|jpeg|png|webp)[^"']*)["']/gi;
-  const altRe  = /alt=["']([^"']*)["']/i;
-  let m;
-  while ((m = attrRe.exec(html)) !== null) {
-    let url = m[1];
+
+  // Hämta alla img-taggar med src + alt
+  const tagRe = /<img[^>]+>/gi;
+  let tagM;
+  while ((tagM = tagRe.exec(html)) !== null) {
+    const tag  = tagM[0];
+    const srcM = tag.match(/(?:src|data-src|data-lazy-src)=["']([^"']+)["']/i);
+    const altM = tag.match(/alt=["']([^"']*)["']/i);
+    if (!srcM) continue;
+    let url = srcM[1];
     if (url.startsWith("//")) url = "https:" + url;
     if (url.startsWith("/"))  url = new URL(url, baseUrl).href;
-    if (!url.startsWith("http") || seen.has(url)) continue;
+    if (!url.startsWith("http")) continue;
+    if (!url.match(/\.(jpg|jpeg|png|webp)/i)) continue;
+    if (seen.has(url)) continue;
     seen.add(url);
-    const nearby = html.slice(Math.max(0, m.index - 100), m.index + 200);
-    const altM   = altRe.exec(nearby);
     images.push({ url, label: altM ? altM[1] : "" });
   }
+
+  // JSON-inbäddade URL:er
   const jsonRe = /"(https?:\/\/[^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/gi;
+  let m;
   while ((m = jsonRe.exec(html)) !== null) {
     const url = m[1];
-    if (!seen.has(url)) { seen.add(url); images.push({ url, label: "" }); }
+    if (!seen.has(url) && !url.includes("logo") && !url.includes("icon")) {
+      seen.add(url);
+      images.push({ url, label: "" });
+    }
   }
+
   return images;
+}
+
+// Hämta alt-text och bildtext från HTML-kontexten runt bilden
+function findBlueprintByContext(html, images) {
+  // Sök efter "planritning" / "planlösning" i textnärhet av bilder
+  const planRe = /planritning|planlösning|planlosning|floor.?plan/gi;
+  const results = [];
+
+  for (const img of images) {
+    const idx = html.indexOf(img.url);
+    if (idx === -1) { results.push(img); continue; }
+    // Kolla 500 tecken runt bildens URL i HTML
+    const context = html.slice(Math.max(0, idx - 300), idx + 300).toLowerCase();
+    const contextScore = planRe.test(context) ? 20 : 0;
+    planRe.lastIndex = 0;
+    results.push({ ...img, score: (img.score || 0) + contextScore });
+  }
+  return results;
 }
 
 function extractMeta(html) {
@@ -64,14 +90,15 @@ function extractMeta(html) {
     if (title) meta.address = title[1].trim();
   }
   const t = html.replace(/<[^>]+>/g, " ");
-  const sqmM   = t.match(/(\d{2,3})\s*(?:m²|m2|kvm)/i);   if (sqmM)   meta.sqm   = parseInt(sqmM[1]);
-  const rumM   = t.match(/(\d{1,2})\s*rum/i);               if (rumM)   meta.rooms = parseInt(rumM[1]);
+  const sqmM   = t.match(/(\d{2,3})\s*(?:m²|m2|kvm)/i);
+  if (sqmM)   meta.sqm   = parseInt(sqmM[1]);
+  const rumM   = t.match(/(\d{1,2})\s*rum/i);
+  if (rumM)   meta.rooms = parseInt(rumM[1]);
   const floorM = t.match(/(\d{1,2})\s*tr(?:\b|[\s,])/i) || t.match(/(?:våning|plan)\s*(\d)/i);
   if (floorM) meta.floor = parseInt(floorM[1]);
   return meta;
 }
 
-// Spara fil i Vercel Blob via REST API — ingen npm-paket behövs
 async function putBlob(pathname, body, contentType, token) {
   const res = await fetch(`https://blob.vercel-storage.com/${pathname}`, {
     method: "PUT",
@@ -79,6 +106,8 @@ async function putBlob(pathname, body, contentType, token) {
       "Authorization":  `Bearer ${token}`,
       "Content-Type":   contentType,
       "x-content-type": contentType,
+      // Använd private access (matchar din bucket-inställning)
+      "x-access":       "private",
     },
     body,
   });
@@ -89,8 +118,6 @@ async function putBlob(pathname, body, contentType, token) {
   const data = await res.json();
   return data.url;
 }
-
-// ── Huvud-handler ─────────────────────────────────────────────────
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -117,18 +144,32 @@ export default async function handler(req, res) {
     return res.status(502).json({ error: `Kunde inte hämta sidan: ${e.message}` });
   }
 
-  // Steg 2: Identifiera planritningar
+  // Steg 2: Hitta och poängsätt bilder + kontextanalys
   const allImages  = extractImages(html, brokerUrl);
-  const blueprints = allImages
-    .map(img => ({ ...img, score: blueprintScore(img.url, img.label) }))
-    .filter(img => img.score >= 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 4)
-    .map((img, i) => ({
-      ...img,
-      type:     i === 0 ? "original_plan" : "alternative_plan",
-      filename: i === 0 ? "original_plan.jpg" : `alternative_plan_${i}.jpg`,
-    }));
+  const scored     = findBlueprintByContext(html, allImages.map(img => ({
+    ...img,
+    score: blueprintScore(img.url, img.label),
+  })));
+
+  // Ta de med högst score — om alla är 0 tar vi de sista bilderna
+  // (planritningar ligger ofta sist i galleriet på mäklarsidor)
+  const sorted = scored.sort((a, b) => b.score - a.score);
+  const topScore = sorted[0]?.score ?? 0;
+
+  let candidates;
+  if (topScore > 0) {
+    // Filtrera bort foton med negativ score
+    candidates = sorted.filter(img => img.score >= 0).slice(0, 4);
+  } else {
+    // Inga tydliga planritningar — ta sista bilden i galleriet (vanligaste platsen)
+    candidates = allImages.slice(-2);
+  }
+
+  const blueprints = candidates.map((img, i) => ({
+    ...img,
+    type:     i === 0 ? "original_plan" : "alternative_plan",
+    filename: i === 0 ? "original_plan.jpg" : `alternative_plan_${i}.jpg`,
+  }));
 
   if (blueprints.length === 0) {
     return res.status(404).json({ error: "Ingen planritning identifierad", images_scanned: allImages.length });
@@ -149,7 +190,10 @@ export default async function handler(req, res) {
   for (const bp of blueprints) {
     try {
       const imgRes = await fetch(bp.url, {
-        headers: { "User-Agent": BROWSER_HEADERS["User-Agent"], "Referer": new URL(bp.url).origin + "/" },
+        headers: {
+          "User-Agent": BROWSER_HEADERS["User-Agent"],
+          "Referer":    new URL(bp.url).origin + "/",
+        },
       });
       if (!imgRes.ok) throw new Error(`HTTP ${imgRes.status}`);
       const buf         = await imgRes.arrayBuffer();
