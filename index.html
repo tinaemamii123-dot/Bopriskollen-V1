@@ -256,31 +256,39 @@ async function fetchBooli(){
       body:JSON.stringify({url})
     }).then(r=>r.json());
 
-    if(!listing.success && !listing.metadata){
-      throw new Error(listing.error||'Okänt fel');
-    }
-
     const m = listing.metadata || {};
 
-    // Steg 2: Skicka rådata till Claude för att normalisera till formulärformat
-    const data = await callAPI({
-      model:'claude-sonnet-4-20250514',max_tokens:800,
-      messages:[{role:'user',content:`Extrahera bostadsdata från detta JSON-objekt och returnera ENBART giltig JSON i exakt detta format:
+    // Steg 2: Normalisera camelCase → snake_case (Worker returnerar camelCase)
+    const normalized = {
+      address:      m.address || m.streetAddress || '',
+      area:         m.area || m.areaName || '',
+      sqm:          m.sqm || m.livingArea || null,
+      rooms:        m.rooms || m.numberOfRooms || null,
+      asking_price: m.askingPrice || m.listPrice || null,
+      monthly_fee:  m.monthlyFee || m.rent || null,
+      floor:        m.floor || null,
+      build_year:   m.buildYear || m.constructionYear || null,
+      elevator:     m.hasElevator ? 'yes' : 'no',
+      condition:    'good',
+      orientation:  'south',
+      balcony:      m.hasBalcony ? 'balcony' : 'none',
+      brf_name:     m.brf || m.brfName || '',
+      brf_debt:     null,
+      brf_status:   'healthy',
+      extra_info:   m.description ? m.description.substring(0,300) : '',
+    };
 
-${JSON.stringify(m)}
+    if(!normalized.sqm && !normalized.asking_price && !normalized.address){
+      throw new Error('Otillräcklig data från mäklarsidan');
+    }
 
-Returnera BARA detta JSON utan förklaringar:
-{"address":"","area":"","sqm":null,"rooms":null,"asking_price":null,"monthly_fee":null,"floor":null,"build_year":null,"elevator":"yes|no","condition":"newly_renovated|good|needs_renovation","orientation":"south|north|east_west|corner","balcony":"balcony|patio|none","brf_name":"","brf_debt":null,"brf_status":"healthy|medium|weak","extra_info":"kort sammanfattning av annonsen"}`}]
-    });
-    const text=data.content?.map(b=>b.text||'').join('')||'';
-    parseAndFill(text,'fetch');
+    parseAndFill(JSON.stringify(normalized),'fetch');
 
-    // Steg 3: Arkivera planritning i bakgrunden
+    // Steg 3: Arkivera planritning tyst i bakgrunden
     archiveBlueprint(url);
 
   }catch(e){
     setStatus('Kunde inte hämta. Klistra in texten manuellt.','err');
-    console.error('fetchBooli error:',e);
   }
   btn.disabled=false;btn.textContent='Hämta annons';
 }
