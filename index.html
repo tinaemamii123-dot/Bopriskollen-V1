@@ -1,385 +1,89 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bostadsanalys — AI-driven värdering</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bostadsanalys — AI-driven värdering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#faf9f7;--surface:#ffffff;--border:#e8e5e0;--border-strong:#ccc8c0;--text:#1a1a18;--text-muted:#6b6860;--text-faint:#a09e98;--accent:#1a1a18;--green-bg:#eaf3de;--green-text:#3b6d11;--red-bg:#fcebeb;--red-text:#a32d2d;--teal-bg:#e1f5ee;--teal-text:#0f6e56;--radius:12px;--radius-sm:8px}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+header{border-bottom:0.5px solid var(--border);padding:1.1rem 2rem;display:flex;align-items:center;justify-content:space-between;background:var(--surface)}
+.logo{font-family:'DM Serif Display',serif;font-size:1.25rem;font-weight:400;color:var(--text);text-decoration:none}
+.logo em{font-style:italic}
+.header-tag{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint)}
+.container{max-width:760px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+.hero{margin-bottom:2.5rem}
+.eyebrow{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:0.5rem}
+.hero h1{font-family:'DM Serif Display',serif;font-size:2.4rem;font-weight:400;line-height:1.15;margin-bottom:0.6rem}
+.hero h1 em{font-style:italic}
+.hero p{font-size:14px;color:var(--text-muted);max-width:520px}
+.sec-label{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:0.75rem}
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.3rem 1.5rem;margin-bottom:0.9rem}
+.card-title{font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:1rem;display:flex;align-items:center;gap:7px}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--border-strong);flex-shrink:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:11px;color:var(--text-muted)}
+.field input,.field select{font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 11px;border:0.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);outline:none;transition:border-color 0.15s}
+.field input:focus,.field select:focus{border-color:var(--border-strong)}
+.field textarea{font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 11px;border:0.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);outline:none;resize:vertical;min-height:85px;line-height:1.55;transition:border-color 0.15s}
+.field textarea:focus{border-color:var(--border-strong)}
+.tg{display:flex;gap:5px;flex-wrap:wrap}
+.tb{padding:5px 13px;font-family:'DM Sans',sans-serif;font-size:12px;border:0.5px solid var(--border-strong);border-radius:20px;background:transparent;color:var(--text-muted);cursor:pointer;transition:all 0.15s}
+.tb.active{background:var(--text);color:#fff;border-color:var(--text)}
+.tb:hover:not(.active){background:var(--bg)}
+.url-row{display:flex;gap:8px;align-items:center;margin-bottom:0.75rem}
+.url-row input{flex:1}
+.btn-secondary{padding:0 15px;height:35px;font-family:'DM Sans',sans-serif;font-size:12px;white-space:nowrap;border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);background:transparent;color:var(--text);cursor:pointer;transition:all 0.15s}
+.btn-secondary:hover{background:var(--bg)}
+.btn-secondary:disabled{opacity:0.4;cursor:not-allowed}
+.fetch-status{font-size:12px;color:var(--text-muted);min-height:18px;margin-bottom:0.6rem}
+.fetch-status.ok{color:var(--green-text)}
+.fetch-status.err{color:var(--red-text)}
+.extract-btn{margin-top:10px;padding:7px 15px;font-family:'DM Sans',sans-serif;font-size:12px;border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);background:transparent;color:var(--text);cursor:pointer;transition:all 0.15s}
+.extract-btn:hover{background:var(--bg)}
+.divider{height:0.5px;background:var(--border);margin:1.5rem 0}
+.analyze-btn{width:100%;padding:14px;font-family:'DM Serif Display',serif;font-size:1.1rem;font-style:italic;font-weight:400;border:none;border-radius:var(--radius);background:var(--text);color:#fff;cursor:pointer;transition:opacity 0.2s;letter-spacing:0.01em}
+.analyze-btn:hover{opacity:0.85}
+.analyze-btn:disabled{opacity:0.4;cursor:not-allowed}
+.results{display:none;margin-top:1.8rem}
+.results.visible{display:block}
+.factors-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-bottom:1rem}
+.fc{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:0.85rem 1rem}
+.fc-label{font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+.fc-value{font-size:14px;font-weight:500}
+.fc-note{font-size:11px;margin-top:2px}
+.ipos{color:var(--green-text)}
+.ineg{color:var(--red-text)}
+.ineu{color:var(--text-muted)}
+.verdict-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.vhdr{padding:1rem 1.4rem;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.vlabel{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint)}
+.vtag{font-size:12px;font-weight:500;padding:3px 12px;border-radius:20px}
+.tag-fair{background:var(--green-bg);color:var(--green-text)}
+.tag-over{background:var(--red-bg);color:var(--red-text)}
+.tag-under{background:var(--teal-bg);color:var(--teal-text)}
+.price-box{padding:1.3rem 1.4rem}
+.price-main{font-family:'DM Serif Display',serif;font-size:2.5rem;font-weight:400;line-height:1;margin-bottom:4px}
+.price-range{font-size:12px;color:var(--text-muted)}
+.analysis-body{padding:1.2rem 1.4rem;border-top:0.5px solid var(--border);font-size:13.5px;line-height:1.8;white-space:pre-wrap}
+.analysis-body.loading{color:var(--text-faint);font-style:italic}
 
-    :root {
-      --bg: #faf9f7;
-      --surface: #ffffff;
-      --border: #e8e5e0;
-      --border-strong: #ccc8c0;
-      --text: #1a1a18;
-      --text-muted: #6b6860;
-      --text-faint: #a09e98;
-      --accent: #1a1a18;
-      --green-bg: #eaf3de;
-      --green-text: #3b6d11;
-      --red-bg: #fcebeb;
-      --red-text: #a32d2d;
-      --teal-bg: #e1f5ee;
-      --teal-text: #0f6e56;
-      --radius: 12px;
-      --radius-sm: 8px;
-    }
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      line-height: 1.6;
-    }
 
-    header {
-      border-bottom: 0.5px solid var(--border);
-      padding: 1.1rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--surface);
-    }
-
-    .logo {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.25rem;
-      font-weight: 400;
-      color: var(--text);
-      text-decoration: none;
-    }
-
-    .logo em { font-style: italic; }
-
-    .header-tag {
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-    }
-
-    .container {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 2.5rem 1.5rem 4rem;
-    }
-
-    .hero {
-      margin-bottom: 2.5rem;
-    }
-
-    .eyebrow {
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      margin-bottom: 0.5rem;
-    }
-
-    .hero h1 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 2.4rem;
-      font-weight: 400;
-      line-height: 1.15;
-      margin-bottom: 0.6rem;
-    }
-
-    .hero h1 em { font-style: italic; }
-
-    .hero p {
-      font-size: 14px;
-      color: var(--text-muted);
-      max-width: 520px;
-    }
-
-    .sec-label {
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      margin-bottom: 0.75rem;
-    }
-
-    .card {
-      background: var(--surface);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.3rem 1.5rem;
-      margin-bottom: 0.9rem;
-    }
-
-    .card-title {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-muted);
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-
-    .dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--border-strong);
-      flex-shrink: 0;
-    }
-
-    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
-    .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 11px; }
-
-    .field { display: flex; flex-direction: column; gap: 4px; }
-
-    .field label {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .field input, .field select {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      padding: 8px 11px;
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--bg);
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.15s;
-    }
-
-    .field input:focus, .field select:focus {
-      border-color: var(--border-strong);
-    }
-
-    .field textarea {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      padding: 9px 11px;
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--bg);
-      color: var(--text);
-      outline: none;
-      resize: vertical;
-      min-height: 85px;
-      line-height: 1.55;
-      transition: border-color 0.15s;
-    }
-
-    .field textarea:focus { border-color: var(--border-strong); }
-
-    .tg { display: flex; gap: 5px; flex-wrap: wrap; }
-
-    .tb {
-      padding: 5px 13px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
-      border: 0.5px solid var(--border-strong);
-      border-radius: 20px;
-      background: transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .tb.active {
-      background: var(--text);
-      color: #fff;
-      border-color: var(--text);
-    }
-
-    .tb:hover:not(.active) { background: var(--bg); }
-
-    .url-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 0.75rem;
-    }
-
-    .url-row input { flex: 1; }
-
-    .btn-secondary {
-      padding: 0 15px;
-      height: 35px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
-      white-space: nowrap;
-      border: 0.5px solid var(--border-strong);
-      border-radius: var(--radius-sm);
-      background: transparent;
-      color: var(--text);
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .btn-secondary:hover { background: var(--bg); }
-    .btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .fetch-status {
-      font-size: 12px;
-      color: var(--text-muted);
-      min-height: 18px;
-      margin-bottom: 0.6rem;
-    }
-
-    .fetch-status.ok { color: var(--green-text); }
-    .fetch-status.err { color: var(--red-text); }
-
-    .extract-btn {
-      margin-top: 10px;
-      padding: 7px 15px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
-      border: 0.5px solid var(--border-strong);
-      border-radius: var(--radius-sm);
-      background: transparent;
-      color: var(--text);
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .extract-btn:hover { background: var(--bg); }
-
-    .divider {
-      height: 0.5px;
-      background: var(--border);
-      margin: 1.5rem 0;
-    }
-
-    .analyze-btn {
-      width: 100%;
-      padding: 14px;
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.1rem;
-      font-style: italic;
-      font-weight: 400;
-      border: none;
-      border-radius: var(--radius);
-      background: var(--text);
-      color: #fff;
-      cursor: pointer;
-      transition: opacity 0.2s;
-      letter-spacing: 0.01em;
-    }
-
-    .analyze-btn:hover { opacity: 0.85; }
-    .analyze-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .results { display: none; margin-top: 1.8rem; }
-    .results.visible { display: block; }
-
-    .factors-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 9px;
-      margin-bottom: 1rem;
-    }
-
-    .fc {
-      background: var(--bg);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 0.85rem 1rem;
-    }
-
-    .fc-label {
-      font-size: 10px;
-      color: var(--text-faint);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 3px;
-    }
-
-    .fc-value { font-size: 14px; font-weight: 500; }
-    .fc-note { font-size: 11px; margin-top: 2px; }
-    .ipos { color: var(--green-text); }
-    .ineg { color: var(--red-text); }
-    .ineu { color: var(--text-muted); }
-
-    .verdict-card {
-      background: var(--surface);
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
-
-    .vhdr {
-      padding: 1rem 1.4rem;
-      border-bottom: 0.5px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .vlabel {
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-    }
-
-    .vtag {
-      font-size: 12px;
-      font-weight: 500;
-      padding: 3px 12px;
-      border-radius: 20px;
-    }
-
-    .tag-fair { background: var(--green-bg); color: var(--green-text); }
-    .tag-over { background: var(--red-bg); color: var(--red-text); }
-    .tag-under { background: var(--teal-bg); color: var(--teal-text); }
-
-    .price-box { padding: 1.3rem 1.4rem; }
-
-    .price-main {
-      font-family: 'DM Serif Display', serif;
-      font-size: 2.5rem;
-      font-weight: 400;
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-
-    .price-range { font-size: 12px; color: var(--text-muted); }
-
-    .analysis-body {
-      padding: 1.2rem 1.4rem;
-      border-top: 0.5px solid var(--border);
-      font-size: 13.5px;
-      line-height: 1.8;
-      white-space: pre-wrap;
-    }
-
-    .analysis-body.loading {
-      color: var(--text-faint);
-      font-style: italic;
-    }
-
-    footer {
-      text-align: center;
-      padding: 2rem;
-      font-size: 12px;
-      color: var(--text-faint);
-      border-top: 0.5px solid var(--border);
-    }
-
-    @media (max-width: 540px) {
-      .g2, .g3 { grid-template-columns: 1fr; }
-      .hero h1 { font-size: 1.8rem; }
-    }
-  </style>
+footer{text-align:center;padding:2rem;font-size:12px;color:var(--text-faint);border-top:0.5px solid var(--border)}
+@media(max-width:540px){.g2,.g3{grid-template-columns:1fr}.hero h1{font-size:1.8rem}}
+</style>
 </head>
 <body>
-
 <header>
   <a class="logo" href="/">Bostads<em>analys</em></a>
   <span class="header-tag">AI-driven värdering</span>
 </header>
-
 <div class="container">
   <div class="hero">
     <p class="eyebrow">Booli-baserad analys</p>
@@ -388,7 +92,6 @@
   </div>
 
   <p class="sec-label">Hämta från Booli</p>
-
   <div class="card">
     <div class="card-title"><span class="dot"></span> Booli-länk</div>
     <div class="url-row">
@@ -396,6 +99,9 @@
       <button class="btn-secondary" id="fetchBtn" onclick="fetchBooli()">Hämta annons</button>
     </div>
     <div class="fetch-status" id="fetchStatus"></div>
+
+
+
     <div class="field">
       <label>Eller klistra in annonstexten direkt (från Booli)</label>
       <textarea id="rawPaste" placeholder="Klistra in hela annonstexten härifrån Booli — titel, beskrivning, fakta, BRF-info osv. AI:n extraherar alla uppgifter automatiskt."></textarea>
@@ -403,7 +109,7 @@
     <button class="extract-btn" onclick="extractFromPaste()">Extrahera från text</button>
   </div>
 
-  <div class="divider" style="margin: 0.4rem 0 1.2rem"></div>
+  <div class="divider" style="margin:0.4rem 0 1.2rem"></div>
   <p class="sec-label">Annonsdata <span style="color:var(--text-faint);font-size:10px;text-transform:none;letter-spacing:0;margin-left:5px">(fylls i automatiskt eller manuellt)</span></p>
 
   <div class="card">
@@ -500,233 +206,204 @@
   </div>
 </div>
 
-<footer>
-  Bostadsanalys använder AI för att ge köpare ett oberoende perspektiv. Inte finansiell rådgivning.
-</footer>
+<footer>Bostadsanalys använder AI för att ge köpare ett oberoende perspektiv. Inte finansiell rådgivning.</footer>
 
 <script>
-  const API = '/api/analyze';
+const API = '/api/analyze';
 
-  function getToggle(id) {
-    const a = document.querySelector(`#${id} .tb.active`);
-    return a ? a.dataset.val : null;
-  }
+function getToggle(id){const a=document.querySelector(`#${id} .tb.active`);return a?a.dataset.val:null}
+function setToggle(id,val){const g=document.getElementById(id);if(!g||!val)return;g.querySelectorAll('.tb').forEach(b=>b.classList.toggle('active',b.dataset.val===val))}
+function setVal(id,val){if(val===null||val===undefined||val==='')return;const el=document.getElementById(id);if(el)el.value=val}
+function fmt(n){return new Intl.NumberFormat('sv-SE').format(Math.round(n))}
+function setStatus(msg,type){const el=document.getElementById('fetchStatus');el.textContent=msg;el.className='fetch-status'+(type?' '+type:'')}
 
-  function setToggle(id, val) {
-    const g = document.getElementById(id);
-    if (!g || !val) return;
-    g.querySelectorAll('.tb').forEach(b => b.classList.toggle('active', b.dataset.val === val));
-  }
-
-  function setVal(id, val) {
-    if (val === null || val === undefined || val === '') return;
-    const el = document.getElementById(id);
-    if (el) el.value = val;
-  }
-
-  function fmt(n) {
-    return new Intl.NumberFormat('sv-SE').format(Math.round(n));
-  }
-
-  function setStatus(msg, type) {
-    const el = document.getElementById('fetchStatus');
-    el.textContent = msg;
-    el.className = 'fetch-status' + (type ? ' ' + type : '');
-  }
-
-  document.querySelectorAll('.tg').forEach(g => {
-    g.querySelectorAll('.tb').forEach(b => {
-      b.addEventListener('click', () => {
-        g.querySelectorAll('.tb').forEach(x => x.classList.remove('active'));
-        b.classList.add('active');
-      });
-    });
+document.querySelectorAll('.tg').forEach(g=>{
+  g.querySelectorAll('.tb').forEach(b=>{
+    b.addEventListener('click',()=>{g.querySelectorAll('.tb').forEach(x=>x.classList.remove('active'));b.classList.add('active')});
   });
+});
 
-  async function callAPI(body) {
-    const res = await fetch(API, {
-      method: 'POST',
+async function callAPI(body){
+  const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  return res.json();
+}
+
+// ── Arkivera planritning tyst i bakgrunden ───────────────────────
+async function archiveBlueprint(url) {
+  try {
+    await fetch('/api/archive-blueprint', {
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body:    JSON.stringify({ url }),
     });
-    return res.json();
-  }
+    // Fel loggas server-side i Vercel Logs — inget visas för användaren
+  } catch (_) {}
+}
+// ─────────────────────────────────────────────────────────────────
 
-  async function fetchBooli() {
-    const url = document.getElementById('booliUrl').value.trim();
-    if (!url) { setStatus('Ange en giltig Booli-URL.', 'err'); return; }
-    const btn = document.getElementById('fetchBtn');
-    btn.disabled = true; btn.textContent = 'Hämtar...';
-    setStatus('Hämtar annonsdata via AI...', '');
-    try {
-      const data = await callAPI({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{
-          role: 'user',
-          content: `Sök efter och hämta information från denna Booli-annons: ${url}\n\nExtrahera EXAKT dessa fält och returnera ENBART giltig JSON:\n{"address":"","area":"","sqm":null,"rooms":null,"asking_price":null,"monthly_fee":null,"floor":null,"build_year":null,"elevator":"yes|no","condition":"newly_renovated|good|needs_renovation","orientation":"south|north|east_west|corner","balcony":"balcony|patio|none","brf_name":"","brf_debt":null,"brf_status":"healthy|medium|weak","extra_info":""}`
-        }]
-      });
-      const text = data.content?.map(b => b.text || '').join('') || '';
-      parseAndFill(text, 'fetch');
-    } catch (e) {
-      setStatus('Kunde inte hämta. Klistra in texten manuellt.', 'err');
+async function fetchBooli(){
+  const url=document.getElementById('booliUrl').value.trim();
+  if(!url){setStatus('Ange en giltig URL.','err');return}
+  const btn=document.getElementById('fetchBtn');
+  btn.disabled=true;btn.textContent='Hämtar...';
+  setStatus('Hämtar annonsdata...','');
+
+  try{
+    // Steg 1: Hämta rådata från mäklarsidan via Worker
+    const listing = await fetch('https://plain-term-910b.tina-emamii123.workers.dev/fetch-listing',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({url})
+    }).then(r=>r.json());
+
+    if(!listing.success && !listing.metadata){
+      throw new Error(listing.error||'Okänt fel');
     }
-    btn.disabled = false; btn.textContent = 'Hämta annons';
+
+    const m = listing.metadata || {};
+
+    // Steg 2: Skicka rådata till Claude för att normalisera till formulärformat
+    const data = await callAPI({
+      model:'claude-sonnet-4-20250514',max_tokens:800,
+      messages:[{role:'user',content:`Extrahera bostadsdata från detta JSON-objekt och returnera ENBART giltig JSON i exakt detta format:
+
+${JSON.stringify(m)}
+
+Returnera BARA detta JSON utan förklaringar:
+{"address":"","area":"","sqm":null,"rooms":null,"asking_price":null,"monthly_fee":null,"floor":null,"build_year":null,"elevator":"yes|no","condition":"newly_renovated|good|needs_renovation","orientation":"south|north|east_west|corner","balcony":"balcony|patio|none","brf_name":"","brf_debt":null,"brf_status":"healthy|medium|weak","extra_info":"kort sammanfattning av annonsen"}`}]
+    });
+    const text=data.content?.map(b=>b.text||'').join('')||'';
+    parseAndFill(text,'fetch');
+
+    // Steg 3: Arkivera planritning i bakgrunden
+    archiveBlueprint(url);
+
+  }catch(e){
+    setStatus('Kunde inte hämta. Klistra in texten manuellt.','err');
+    console.error('fetchBooli error:',e);
   }
+  btn.disabled=false;btn.textContent='Hämta annons';
+}
 
-  async function extractFromPaste() {
-    const raw = document.getElementById('rawPaste').value.trim();
-    if (!raw) { setStatus('Klistra in annonstext nedan först.', 'err'); return; }
-    setStatus('Extraherar data...', '');
-    try {
-      const data = await callAPI({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 800,
-        messages: [{
-          role: 'user',
-          content: `Extrahera bostadsdata från denna annonstext och returnera ENBART giltig JSON:\n\n${raw}\n\nJSON-format:\n{"address":"","area":"","sqm":null,"rooms":null,"asking_price":null,"monthly_fee":null,"floor":null,"build_year":null,"elevator":"yes|no","condition":"newly_renovated|good|needs_renovation","orientation":"south|north|east_west|corner","balcony":"balcony|patio|none","brf_name":"","brf_debt":null,"brf_status":"healthy|medium|weak","extra_info":"sammanfattning av viktig info"}\n\nReturnera BARA JSON.`
-        }]
-      });
-      const text = data.content?.map(b => b.text || '').join('') || '';
-      parseAndFill(text, 'paste');
-    } catch (e) {
-      setStatus('Extraheringen misslyckades. Fyll i manuellt.', 'err');
-    }
-  }
+async function extractFromPaste(){
+  const raw=document.getElementById('rawPaste').value.trim();
+  if(!raw){setStatus('Klistra in annonstext nedan först.','err');return}
+  setStatus('Extraherar data...','');
+  try{
+    const data=await callAPI({
+      model:'claude-sonnet-4-20250514',max_tokens:800,
+      messages:[{role:'user',content:`Extrahera bostadsdata från denna annonstext och returnera ENBART giltig JSON:\n\n${raw}\n\nJSON-format:\n{"address":"","area":"","sqm":null,"rooms":null,"asking_price":null,"monthly_fee":null,"floor":null,"build_year":null,"elevator":"yes|no","condition":"newly_renovated|good|needs_renovation","orientation":"south|north|east_west|corner","balcony":"balcony|patio|none","brf_name":"","brf_debt":null,"brf_status":"healthy|medium|weak","extra_info":"sammanfattning av viktig info"}\n\nReturnera BARA JSON.`}]
+    });
+    const text=data.content?.map(b=>b.text||'').join('')||'';
+    parseAndFill(text,'paste');
+  }catch(e){setStatus('Extraheringen misslyckades. Fyll i manuellt.','err')}
+}
 
-  function parseAndFill(text, source) {
-    try {
-      const clean = text.replace(/```json|```/g, '').trim();
-      const s = clean.indexOf('{'), e = clean.lastIndexOf('}');
-      if (s === -1 || e === -1) throw new Error('no json');
-      const d = JSON.parse(clean.slice(s, e + 1));
-      setVal('address', d.address); setVal('area', d.area);
-      setVal('sqm', d.sqm); setVal('rooms', d.rooms);
-      setVal('asking_price', d.asking_price); setVal('monthly_fee', d.monthly_fee);
-      setVal('floor', d.floor); setVal('build_year', d.build_year);
-      setVal('brf_name', d.brf_name); setVal('brf_debt', d.brf_debt);
-      setVal('extra_info', d.extra_info);
-      if (d.elevator) setToggle('elevator', d.elevator);
-      if (d.condition) setToggle('condition', d.condition);
-      if (d.orientation) setToggle('orientation', d.orientation);
-      if (d.balcony) setToggle('balcony', d.balcony);
-      if (d.brf_status) setToggle('brf_status', d.brf_status);
-      setStatus(source === 'fetch' ? 'Annonsdata hämtad och ifylld.' : 'Data extraherad och ifylld.', 'ok');
-    } catch (e) {
-      setStatus('Kunde inte tolka svaret. Kontrollera fälten nedan.', 'err');
-    }
-  }
+function parseAndFill(text,source){
+  try{
+    const clean=text.replace(/```json|```/g,'').trim();
+    const s=clean.indexOf('{'),e=clean.lastIndexOf('}');
+    if(s===-1||e===-1)throw new Error('no json');
+    const d=JSON.parse(clean.slice(s,e+1));
+    setVal('address',d.address);setVal('area',d.area);setVal('sqm',d.sqm);
+    setVal('rooms',d.rooms);setVal('asking_price',d.asking_price);
+    setVal('monthly_fee',d.monthly_fee);setVal('floor',d.floor);
+    setVal('build_year',d.build_year);setVal('brf_name',d.brf_name);
+    setVal('brf_debt',d.brf_debt);setVal('extra_info',d.extra_info);
+    if(d.elevator)setToggle('elevator',d.elevator);
+    if(d.condition)setToggle('condition',d.condition);
+    if(d.orientation)setToggle('orientation',d.orientation);
+    if(d.balcony)setToggle('balcony',d.balcony);
+    if(d.brf_status)setToggle('brf_status',d.brf_status);
+    setStatus(source==='fetch'?'Annonsdata hämtad och ifylld.':'Data extraherad och ifylld.','ok');
+  }catch(e){setStatus('Kunde inte tolka svaret. Kontrollera fälten nedan.','err')}
+}
 
-  function buildFactors(data) {
-    const floor = parseInt(data.floor) || 2;
-    const hasElev = data.elevator === 'yes';
-    const factors = [
-      { label: 'Hiss', value: hasElev ? 'Finns' : 'Saknas', cls: hasElev ? 'ipos' : floor > 3 ? 'ineg' : 'ineu', note: hasElev ? 'Värdehöjande' : floor > 3 ? 'Värdesänkande' : 'Liten påverkan' },
-      { label: 'Våning', value: `${floor}tr`, cls: floor >= 3 ? 'ipos' : floor === 1 ? 'ineg' : 'ineu', note: floor >= 3 ? 'Attraktiv höjd' : floor === 1 ? 'Bottenvåning' : 'Neutral' },
-      { label: 'Skick', value: { newly_renovated: 'Nyrenoverad', good: 'Gott skick', needs_renovation: 'Renovering' }[data.condition] || '–', cls: data.condition === 'newly_renovated' ? 'ipos' : data.condition === 'needs_renovation' ? 'ineg' : 'ineu', note: data.condition === 'needs_renovation' ? 'Budget för renovering' : data.condition === 'newly_renovated' ? 'Inget att åtgärda' : '' },
-      { label: 'BRF-ekonomi', value: { healthy: 'Sund', medium: 'OK', weak: 'Svag' }[data.brf_status] || '–', cls: data.brf_status === 'healthy' ? 'ipos' : data.brf_status === 'weak' ? 'ineg' : 'ineu', note: data.brf_status === 'weak' ? 'Risk: avgiftshöjning' : data.brf_status === 'healthy' ? 'Stabil förening' : '' }
-    ];
-    document.getElementById('factorsGrid').innerHTML = factors.map(f => `
-      <div class="fc">
-        <div class="fc-label">${f.label}</div>
-        <div class="fc-value ${f.cls}">${f.cls === 'ipos' ? '+' : f.cls === 'ineg' ? '−' : '±'} ${f.value}</div>
-        ${f.note ? `<div class="fc-note ${f.cls}">${f.note}</div>` : ''}
-      </div>`).join('');
-  }
+function buildFactors(data){
+  const floor=parseInt(data.floor)||2;
+  const hasElev=data.elevator==='yes';
+  const factors=[
+    {label:'Hiss',value:hasElev?'Finns':'Saknas',cls:hasElev?'ipos':floor>3?'ineg':'ineu',note:hasElev?'Värdehöjande':floor>3?'Värdesänkande':'Liten påverkan'},
+    {label:'Våning',value:`${floor}tr`,cls:floor>=3?'ipos':floor===1?'ineg':'ineu',note:floor>=3?'Attraktiv höjd':floor===1?'Bottenvåning':'Neutral'},
+    {label:'Skick',value:{newly_renovated:'Nyrenoverad',good:'Gott skick',needs_renovation:'Renovering'}[data.condition]||'–',cls:data.condition==='newly_renovated'?'ipos':data.condition==='needs_renovation'?'ineg':'ineu',note:data.condition==='needs_renovation'?'Budget för renovering':data.condition==='newly_renovated'?'Inget att åtgärda':''},
+    {label:'BRF-ekonomi',value:{healthy:'Sund',medium:'OK',weak:'Svag'}[data.brf_status]||'–',cls:data.brf_status==='healthy'?'ipos':data.brf_status==='weak'?'ineg':'ineu',note:data.brf_status==='weak'?'Risk: avgiftshöjning':data.brf_status==='healthy'?'Stabil förening':''}
+  ];
+  document.getElementById('factorsGrid').innerHTML=factors.map(f=>`
+    <div class="fc">
+      <div class="fc-label">${f.label}</div>
+      <div class="fc-value ${f.cls}">${f.cls==='ipos'?'+':f.cls==='ineg'?'−':'±'} ${f.value}</div>
+      ${f.note?`<div class="fc-note ${f.cls}">${f.note}</div>`:''}
+    </div>`).join('');
+}
 
-  async function runAnalysis() {
-    const btn = document.getElementById('analyzeBtn');
-    const data = {
-      address: document.getElementById('address').value || 'Okänd adress',
-      area: document.getElementById('area').value || 'Okänt område',
-      sqm: document.getElementById('sqm').value,
-      rooms: document.getElementById('rooms').value,
-      asking_price: document.getElementById('asking_price').value,
-      monthly_fee: document.getElementById('monthly_fee').value,
-      floor: parseInt(document.getElementById('floor').value) || 2,
-      build_year: document.getElementById('build_year').value,
-      brf_name: document.getElementById('brf_name').value,
-      brf_debt: document.getElementById('brf_debt').value,
-      extra_info: document.getElementById('extra_info').value,
-      elevator: getToggle('elevator'),
-      condition: getToggle('condition'),
-      orientation: getToggle('orientation'),
-      balcony: getToggle('balcony'),
-      brf_status: getToggle('brf_status'),
-    };
-
-    btn.disabled = true; btn.textContent = 'Analyserar...';
-    document.getElementById('results').classList.add('visible');
-    buildFactors(data);
-
-    const aEl = document.getElementById('analysisText');
-    aEl.className = 'analysis-body loading';
-    aEl.textContent = 'Hämtar marknadsinformation och beräknar värdering...';
-    document.getElementById('estPrice').textContent = '–';
-    document.getElementById('priceRange').textContent = '–';
-    document.getElementById('verdictTag').textContent = '–';
-    document.getElementById('verdictTag').className = 'vtag';
-
-    const sqmPrice = data.asking_price && data.sqm ? Math.round(data.asking_price / data.sqm) : null;
-
-    const prompt = `Du är en oberoende bostadsanalytiker i Sverige med djup kunskap om Stockholms bostadsmarknad och historiska försäljningsdata från Booli.
-
-Analysera denna bostadsannons ur ett köparperspektiv och ge en realistisk marknadsvärdering.
+async function runAnalysis(){
+  const btn=document.getElementById('analyzeBtn');
+  const data={
+    address:document.getElementById('address').value||'Okänd adress',
+    area:document.getElementById('area').value||'Okänt område',
+    sqm:document.getElementById('sqm').value,
+    rooms:document.getElementById('rooms').value,
+    asking_price:document.getElementById('asking_price').value,
+    monthly_fee:document.getElementById('monthly_fee').value,
+    floor:parseInt(document.getElementById('floor').value)||2,
+    build_year:document.getElementById('build_year').value,
+    brf_name:document.getElementById('brf_name').value,
+    brf_debt:document.getElementById('brf_debt').value,
+    extra_info:document.getElementById('extra_info').value,
+    elevator:getToggle('elevator'),condition:getToggle('condition'),
+    orientation:getToggle('orientation'),balcony:getToggle('balcony'),
+    brf_status:getToggle('brf_status'),
+  };
+  btn.disabled=true;btn.textContent='Analyserar...';
+  document.getElementById('results').classList.add('visible');
+  buildFactors(data);
+  const aEl=document.getElementById('analysisText');
+  aEl.className='analysis-body loading';aEl.textContent='Hämtar marknadsinformation och beräknar värdering...';
+  document.getElementById('estPrice').textContent='–';
+  document.getElementById('priceRange').textContent='–';
+  document.getElementById('verdictTag').textContent='–';
+  document.getElementById('verdictTag').className='vtag';
+  const sqmPrice=data.asking_price&&data.sqm?Math.round(data.asking_price/data.sqm):null;
+  const prompt=`Du är en oberoende bostadsanalytiker i Sverige med djup kunskap om Stockholms bostadsmarknad och historiska försäljningsdata från Booli. Analysera denna bostadsannons ur ett köparperspektiv och ge en realistisk marknadsvärdering.
 
 BOSTADSDATA:
 - Adress: ${data.address}, ${data.area}
 - Storlek: ${data.sqm} kvm, ${data.rooms} rum
-- Utropspris: ${data.asking_price ? fmt(data.asking_price) + ' kr' : 'ej angivet'}${sqmPrice ? ' (' + fmt(sqmPrice) + ' kr/kvm)' : ''}
-- Månadsavgift: ${data.monthly_fee ? data.monthly_fee + ' kr/mån' : 'ej angiven'}
-- Våning: ${data.floor}tr | Hiss: ${data.elevator === 'yes' ? 'Ja' : 'Nej'} | Byggår: ${data.build_year || 'okänt'}
+- Utropspris: ${data.asking_price?fmt(data.asking_price)+' kr':'ej angivet'}${sqmPrice?' ('+fmt(sqmPrice)+' kr/kvm)':''}
+- Månadsavgift: ${data.monthly_fee?data.monthly_fee+' kr/mån':'ej angiven'}
+- Våning: ${data.floor}tr | Hiss: ${data.elevator==='yes'?'Ja':'Nej'} | Byggår: ${data.build_year||'okänt'}
 - Skick: ${data.condition} | Läge: ${data.orientation} | Balkong: ${data.balcony}
-BRF: ${data.brf_name || 'okänd'} | Skuld: ${data.brf_debt ? data.brf_debt + ' kr/kvm' : 'okänd'} | Status: ${data.brf_status}
-Extra: ${data.extra_info || '(ingen)'}
+BRF: ${data.brf_name||'okänd'} | Skuld: ${data.brf_debt?data.brf_debt+' kr/kvm':'okänd'} | Status: ${data.brf_status}
+Extra: ${data.extra_info||'(ingen)'}
 
 Svara i detta format:
 ESTIMATED_PRICE: [kronor]
 PRICE_LOW: [kronor]
 PRICE_HIGH: [kronor]
 VERDICT: [fair/overpriced/underpriced]
-
-ANALYS:
-[4-5 stycken på svenska: 1) kr/kvm-jämförelse mot marknaden 2) BRF-ekonomi och totalkostnad 3) Plus/minus-faktorer 4) Budstrategi och risker 5) Sammanfattning]`;
-
-    try {
-      const res = await callAPI({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      });
-
-      const text = res.content?.map(b => b.text || '').join('') || '';
-      const em = text.match(/ESTIMATED_PRICE:\s*([\d]+)/);
-      const lm = text.match(/PRICE_LOW:\s*([\d]+)/);
-      const hm = text.match(/PRICE_HIGH:\s*([\d]+)/);
-      const vm = text.match(/VERDICT:\s*(\w+)/i);
-      const am = text.match(/ANALYS:\s*([\s\S]+)/i);
-
-      if (em) document.getElementById('estPrice').textContent = fmt(parseInt(em[1])) + ' kr';
-      if (lm && hm) document.getElementById('priceRange').textContent = `Intervall: ${fmt(parseInt(lm[1]))} – ${fmt(parseInt(hm[1]))} kr`;
-
-      const v = (vm?.[1] || '').toLowerCase();
-      const tag = document.getElementById('verdictTag');
-      if (v === 'fair') { tag.textContent = 'Rimligt pris'; tag.className = 'vtag tag-fair'; }
-      else if (v === 'overpriced') { tag.textContent = 'Högt pris'; tag.className = 'vtag tag-over'; }
-      else if (v === 'underpriced') { tag.textContent = 'Under marknad'; tag.className = 'vtag tag-under'; }
-
-      aEl.className = 'analysis-body';
-      aEl.textContent = am ? am[1].trim() : text;
-
-    } catch (e) {
-      aEl.className = 'analysis-body';
-      aEl.textContent = 'Något gick fel. Kontrollera att API-nyckeln är konfigurerad i Vercel.';
-    }
-
-    btn.disabled = false; btn.textContent = 'Analysera bostaden →';
+ANALYS: [4-5 stycken på svenska: 1) kr/kvm-jämförelse mot marknaden 2) BRF-ekonomi och totalkostnad 3) Plus/minus-faktorer 4) Budstrategi och risker 5) Sammanfattning]`;
+  try{
+    const res=await callAPI({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]});
+    const text=res.content?.map(b=>b.text||'').join('')||'';
+    const em=text.match(/ESTIMATED_PRICE:\s*([\d]+)/);
+    const lm=text.match(/PRICE_LOW:\s*([\d]+)/);
+    const hm=text.match(/PRICE_HIGH:\s*([\d]+)/);
+    const vm=text.match(/VERDICT:\s*(\w+)/i);
+    const am=text.match(/ANALYS:\s*([\s\S]+)/i);
+    if(em)document.getElementById('estPrice').textContent=fmt(parseInt(em[1]))+' kr';
+    if(lm&&hm)document.getElementById('priceRange').textContent=`Intervall: ${fmt(parseInt(lm[1]))} – ${fmt(parseInt(hm[1]))} kr`;
+    const v=(vm?.[1]||'').toLowerCase();
+    const tag=document.getElementById('verdictTag');
+    if(v==='fair'){tag.textContent='Rimligt pris';tag.className='vtag tag-fair'}
+    else if(v==='overpriced'){tag.textContent='Högt pris';tag.className='vtag tag-over'}
+    else if(v==='underpriced'){tag.textContent='Under marknad';tag.className='vtag tag-under'}
+    aEl.className='analysis-body';aEl.textContent=am?am[1].trim():text;
+  }catch(e){
+    aEl.className='analysis-body';
+    aEl.textContent='Något gick fel. Kontrollera att API-nyckeln är konfigurerad i Vercel.';
   }
+  btn.disabled=false;btn.textContent='Analysera bostaden →';
+}
 </script>
 </body>
 </html>
