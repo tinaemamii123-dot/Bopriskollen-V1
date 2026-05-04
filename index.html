@@ -1,163 +1,304 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bostadsanalys — AI-driven värdering</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#faf9f7;--surface:#ffffff;--border:#e8e5e0;--border-strong:#ccc8c0;--text:#1a1a18;--text-muted:#6b6860;--text-faint:#a09e98;--accent:#1a1a18;--green-bg:#eaf3de;--green-text:#3b6d11;--red-bg:#fcebeb;--red-text:#a32d2d;--teal-bg:#e1f5ee;--teal-text:#0f6e56;--radius:12px;--radius-sm:8px}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
-header{border-bottom:0.5px solid var(--border);padding:1.1rem 2rem;display:flex;align-items:center;justify-content:space-between;background:var(--surface)}
-.logo{font-family:'DM Serif Display',serif;font-size:1.25rem;font-weight:400;color:var(--text);text-decoration:none}
-.logo em{font-style:italic}
-.header-tag{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint)}
-.container{max-width:760px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
-.hero{margin-bottom:2.5rem}
-.eyebrow{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:0.5rem}
-.hero h1{font-family:'DM Serif Display',serif;font-size:2.4rem;font-weight:400;line-height:1.15;margin-bottom:0.6rem}
-.hero h1 em{font-style:italic}
-.hero p{font-size:14px;color:var(--text-muted);max-width:520px}
-.sec-label{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:0.75rem}
-.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.3rem 1.5rem;margin-bottom:0.9rem}
-.card-title{font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:1rem;display:flex;align-items:center;gap:7px}
-.dot{width:5px;height:5px;border-radius:50%;background:var(--border-strong);flex-shrink:0}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
-.field{display:flex;flex-direction:column;gap:4px}
-.field label{font-size:11px;color:var(--text-muted)}
-.field input,.field select{font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 11px;border:0.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);outline:none;transition:border-color 0.15s}
-.field input:focus,.field select:focus{border-color:var(--border-strong)}
-.field textarea{font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 11px;border:0.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);outline:none;resize:vertical;min-height:85px;line-height:1.55;transition:border-color 0.15s}
-.field textarea:focus{border-color:var(--border-strong)}
-.tg{display:flex;gap:5px;flex-wrap:wrap}
-.tb{padding:5px 13px;font-family:'DM Sans',sans-serif;font-size:12px;border:0.5px solid var(--border-strong);border-radius:20px;background:transparent;color:var(--text-muted);cursor:pointer;transition:all 0.15s}
-.tb.active{background:var(--text);color:#fff;border-color:var(--text)}
-.tb:hover:not(.active){background:var(--bg)}
-.url-row{display:flex;gap:8px;align-items:center;margin-bottom:0.75rem}
-.url-row input{flex:1}
-.btn-secondary{padding:0 15px;height:35px;font-family:'DM Sans',sans-serif;font-size:12px;white-space:nowrap;border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);background:transparent;color:var(--text);cursor:pointer;transition:all 0.15s}
-.btn-secondary:hover{background:var(--bg)}
-.btn-secondary:disabled{opacity:0.4;cursor:not-allowed}
-.fetch-status{font-size:12px;color:var(--text-muted);min-height:18px;margin-bottom:0.6rem}
-.fetch-status.ok{color:var(--green-text)}
-.fetch-status.err{color:var(--red-text)}
-.extract-btn{margin-top:10px;padding:7px 15px;font-family:'DM Sans',sans-serif;font-size:12px;border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);background:transparent;color:var(--text);cursor:pointer;transition:all 0.15s}
-.extract-btn:hover{background:var(--bg)}
-.divider{height:0.5px;background:var(--border);margin:1.5rem 0}
-.analyze-btn{width:100%;padding:14px;font-family:'DM Serif Display',serif;font-size:1.1rem;font-style:italic;font-weight:400;border:none;border-radius:var(--radius);background:var(--text);color:#fff;cursor:pointer;transition:opacity 0.2s;letter-spacing:0.01em}
-.analyze-btn:hover{opacity:0.85}
-.analyze-btn:disabled{opacity:0.4;cursor:not-allowed}
-.results{display:none;margin-top:1.8rem}
-.results.visible{display:block}
-.factors-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-bottom:1rem}
-.fc{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:0.85rem 1rem}
-.fc-label{font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
-.fc-value{font-size:14px;font-weight:500}
-.fc-note{font-size:11px;margin-top:2px}
-.ipos{color:var(--green-text)}
-.ineg{color:var(--red-text)}
-.ineu{color:var(--text-muted)}
-.verdict-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
-.vhdr{padding:1rem 1.4rem;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.vlabel{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-faint)}
-.vtag{font-size:12px;font-weight:500;padding:3px 12px;border-radius:20px}
-.tag-fair{background:var(--green-bg);color:var(--green-text)}
-.tag-over{background:var(--red-bg);color:var(--red-text)}
-.tag-under{background:var(--teal-bg);color:var(--teal-text)}
-.price-box{padding:1.3rem 1.4rem}
-.price-main{font-family:'DM Serif Display',serif;font-size:2.5rem;font-weight:400;line-height:1;margin-bottom:4px}
-.price-range{font-size:12px;color:var(--text-muted)}
-.analysis-body{padding:1.2rem 1.4rem;border-top:0.5px solid var(--border);font-size:13.5px;line-height:1.8;white-space:pre-wrap}
-.analysis-body.loading{color:var(--text-faint);font-style:italic}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bopriskollen — AI-driven bostadsvärdering</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #faf9f7; --surface: #ffffff; --border: #e8e5e0; --border-strong: #ccc8c0;
+      --text: #1a1a18; --text-muted: #6b6860; --text-faint: #a09e98;
+      --green-bg: #eaf3de; --green-text: #3b6d11;
+      --red-bg: #fcebeb; --red-text: #a32d2d;
+      --teal-bg: #e1f5ee; --teal-text: #0f6e56;
+      --amber-bg: #faeeda; --amber-text: #633806;
+      --radius: 12px; --radius-sm: 8px;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6; }
+    header { border-bottom: 0.5px solid var(--border); padding: 1.1rem 2rem; display: flex; align-items: center; justify-content: space-between; background: var(--surface); }
+    .logo { font-family: 'DM Serif Display', serif; font-size: 1.25rem; font-weight: 400; color: var(--text); text-decoration: none; }
+    .logo em { font-style: italic; }
+    .header-tag { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint); }
+    .container { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    .hero { margin-bottom: 2rem; }
+    .eyebrow { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-faint); margin-bottom: .5rem; }
+    .hero h1 { font-family: 'DM Serif Display', serif; font-size: 2.2rem; font-weight: 400; line-height: 1.15; margin-bottom: .5rem; }
+    .hero h1 em { font-style: italic; }
+    .hero p { font-size: 14px; color: var(--text-muted); max-width: 520px; }
+    .sec-label { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); margin-bottom: .75rem; }
+    .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.3rem 1.5rem; margin-bottom: .9rem; }
+    .card-title { font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 1rem; display: flex; align-items: center; gap: 7px; }
+    .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--border-strong); flex-shrink: 0; }
+    .url-inputs { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+    .url-field { display: flex; flex-direction: column; gap: 4px; }
+    .url-field label { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+    .source-badge { font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 10px; }
+    .badge-booli { background: #e6f1fb; color: #185fa5; }
+    .badge-hemnet { background: var(--green-bg); color: var(--green-text); }
+    .url-field input { font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 9px 12px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); outline: none; transition: border-color .15s; width: 100%; }
+    .url-field input:focus { border-color: var(--border-strong); }
+    .fetch-btn { width: 100%; padding: 11px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; border: none; border-radius: var(--radius-sm); background: var(--text); color: #fff; cursor: pointer; transition: opacity .15s; }
+    .fetch-btn:hover { opacity: .85; }
+    .fetch-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .status-bar { font-size: 12px; padding: 7px 11px; border-radius: var(--radius-sm); display: none; margin-top: 8px; }
+    .status-bar.show { display: block; }
+    .status-bar.loading { background: #e6f1fb; color: #185fa5; }
+    .status-bar.ok { background: var(--green-bg); color: var(--green-text); }
+    .status-bar.err { background: var(--red-bg); color: var(--red-text); }
+    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+    .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 11px; }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-size: 11px; color: var(--text-muted); }
+    .field input { font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 8px 11px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); outline: none; transition: all .15s; width: 100%; }
+    .field input:focus { border-color: var(--border-strong); }
+    .field input.filled { background: #f0f9f4; border-color: #9fe1cb; }
+    .field textarea { font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 9px 11px; border: 0.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); outline: none; resize: vertical; min-height: 70px; line-height: 1.55; width: 100%; }
+    .field textarea:focus { border-color: var(--border-strong); }
+    .tg { display: flex; gap: 5px; flex-wrap: wrap; }
+    .tb { padding: 5px 13px; font-family: 'DM Sans', sans-serif; font-size: 12px; border: 0.5px solid var(--border-strong); border-radius: 20px; background: transparent; color: var(--text-muted); cursor: pointer; transition: all .15s; }
+    .tb.active { background: var(--text); color: #fff; border-color: var(--text); }
+    .tb:hover:not(.active) { background: var(--bg); }
 
+    /* Image upload */
+    .image-upload-area { border: 1.5px dashed var(--border-strong); border-radius: var(--radius-sm); padding: 1.5rem; text-align: center; cursor: pointer; transition: all .15s; background: var(--bg); }
+    .image-upload-area:hover { border-color: var(--text-muted); background: #f5f3f0; }
+    .image-upload-area.dragover { border-color: var(--text); background: #f0f9f4; }
+    .upload-icon { width: 32px; height: 32px; margin: 0 auto 8px; opacity: .4; }
+    .upload-text { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
+    .upload-sub { font-size: 11px; color: var(--text-faint); }
+    .image-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; margin-top: 12px; }
+    .preview-item { position: relative; aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden; border: 0.5px solid var(--border); }
+    .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+    .preview-remove { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,0.6); color: white; border: none; cursor: pointer; font-size: 11px; display: flex; align-items: center; justify-content: center; line-height: 1; }
+    .preview-label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.5); color: white; font-size: 9px; padding: 2px 4px; text-align: center; }
+    .analyze-images-btn { width: 100%; margin-top: 10px; padding: 10px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; border: 0.5px solid var(--border-strong); border-radius: var(--radius-sm); background: transparent; color: var(--text); cursor: pointer; transition: all .15s; }
+    .analyze-images-btn:hover { background: var(--bg); }
+    .analyze-images-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .image-analysis-result { margin-top: 12px; padding: 12px; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; line-height: 1.7; display: none; }
+    .image-analysis-result.show { display: block; }
+    .score-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .score-badge { font-size: 18px; font-weight: 500; font-family: 'DM Serif Display', serif; }
+    .score-label { font-size: 12px; color: var(--text-muted); }
+    .score-good { color: var(--green-text); }
+    .score-medium { color: #ba7517; }
+    .score-bad { color: var(--red-text); }
 
+    .observations-area { margin-top: 10px; }
 
-footer{text-align:center;padding:2rem;font-size:12px;color:var(--text-faint);border-top:0.5px solid var(--border)}
-@media(max-width:540px){.g2,.g3{grid-template-columns:1fr}.hero h1{font-size:1.8rem}}
-</style>
+    .divider { height: .5px; background: var(--border); margin: 1.5rem 0; }
+    .analyze-btn { width: 100%; padding: 14px; font-family: 'DM Serif Display', serif; font-size: 1.1rem; font-style: italic; font-weight: 400; border: none; border-radius: var(--radius); background: var(--text); color: #fff; cursor: pointer; transition: opacity .2s; }
+    .analyze-btn:hover { opacity: .85; }
+    .analyze-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .results { display: none; margin-top: 1.8rem; }
+    .results.visible { display: block; }
+    .factors-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 9px; margin-bottom: 1rem; }
+    .fc { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: .85rem 1rem; }
+    .fc-label { font-size: 10px; color: var(--text-faint); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 3px; }
+    .fc-value { font-size: 14px; font-weight: 500; }
+    .fc-note { font-size: 11px; margin-top: 2px; }
+    .ipos { color: var(--green-text); } .ineg { color: var(--red-text); } .ineu { color: var(--text-muted); }
+    .verdict-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: .9rem; }
+    .vhdr { padding: 1rem 1.4rem; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .vlabel { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); }
+    .vtag { font-size: 12px; font-weight: 500; padding: 3px 12px; border-radius: 20px; }
+    .tag-fair { background: var(--green-bg); color: var(--green-text); }
+    .tag-over { background: var(--red-bg); color: var(--red-text); }
+    .tag-under { background: var(--teal-bg); color: var(--teal-text); }
+    .price-box { padding: 1.3rem 1.4rem; }
+    .price-main { font-family: 'DM Serif Display', serif; font-size: 2.5rem; font-weight: 400; line-height: 1; margin-bottom: 4px; }
+    .price-range { font-size: 12px; color: var(--text-muted); }
+    .analysis-body { padding: 1.2rem 1.4rem; border-top: 0.5px solid var(--border); font-size: 13.5px; line-height: 1.8; white-space: pre-wrap; }
+    .analysis-body.loading { color: var(--text-faint); font-style: italic; }
+    .risk-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: .9rem; }
+    .risk-body { padding: 1.2rem 1.4rem; font-size: 13.5px; line-height: 1.8; white-space: pre-wrap; }
+    .source-row { display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; font-size: 12px; color: var(--text-muted); }
+    .source-pill { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+    footer { text-align: center; padding: 2rem; font-size: 12px; color: var(--text-faint); border-top: 0.5px solid var(--border); margin-top: 2rem; }
+    @media (max-width: 540px) { .g2, .g3 { grid-template-columns: 1fr; } .hero h1 { font-size: 1.8rem; } }
+
+    /* Booli bildanalys-progress */
+    .img-progress { display: none; margin-top: 10px; padding: 12px 14px; background: #e6f1fb; border-radius: var(--radius-sm); }
+    .img-progress.show { display: block; }
+    .img-progress-label { font-size: 12px; color: #185fa5; margin-bottom: 6px; }
+    .img-progress-bar { height: 3px; background: #b5d4f4; border-radius: 2px; overflow: hidden; }
+    .img-progress-fill { height: 100%; background: #185fa5; border-radius: 2px; transition: width .4s ease; }
+
+    /* Skickskort från bildanalys */
+    .condition-card { display: none; margin-top: 10px; background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+    .condition-card.show { display: block; }
+    .condition-hdr { padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 0.5px solid var(--border); }
+    .condition-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; }
+    .condition-badge { font-size: 12px; font-weight: 500; padding: 2px 10px; border-radius: 20px; }
+    .cond-1, .cond-2 { background: var(--red-bg); color: var(--red-text); }
+    .cond-3 { background: var(--amber-bg); color: var(--amber-text); }
+    .cond-4, .cond-5 { background: var(--green-bg); color: var(--green-text); }
+    .condition-body { padding: 12px 14px; font-size: 13px; line-height: 1.7; color: var(--text-muted); }
+    .condition-rooms { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .condition-room { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px; }
+    .condition-room-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-faint); margin-bottom: 3px; }
+    .condition-room-text { font-size: 12px; line-height: 1.55; color: var(--text); }
+    .condition-features { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+    .feat-tag { font-size: 11px; padding: 3px 9px; border-radius: 20px; }
+    .feat-yes { background: var(--green-bg); color: var(--green-text); }
+    .feat-no { background: var(--bg); color: var(--text-faint); border: 0.5px solid var(--border); }
+    .condition-tips { margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--border); }
+    .condition-tip { font-size: 12px; color: var(--text-muted); padding: 4px 0; padding-left: 14px; position: relative; line-height: 1.55; }
+    .condition-tip::before { content: '→'; position: absolute; left: 0; color: var(--text-faint); }
+    @media (max-width: 540px) { .condition-rooms { grid-template-columns: 1fr; } }
+
+    /* Jämförelsetabell */
+    .comp-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: .9rem; }
+    .comp-tabs { display: flex; border-bottom: 0.5px solid var(--border); }
+    .comp-tab { flex: 1; padding: 9px; font-size: 11px; font-weight: 500; text-align: center; cursor: pointer; border: none; background: transparent; color: var(--text-muted); border-bottom: 2px solid transparent; transition: all .15s; font-family: 'DM Sans', sans-serif; }
+    .comp-tab.active { color: var(--text); border-bottom-color: var(--text); }
+    .comp-tab:hover:not(.active) { background: var(--bg); }
+    .comp-body { padding: 1.2rem 1.4rem; }
+    .comp-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1rem; }
+    .comp-stat { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: .65rem .9rem; }
+    .comp-stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-faint); margin-bottom: 3px; }
+    .comp-stat-value { font-size: 15px; font-weight: 500; font-family: 'DM Serif Display', serif; }
+    .comp-verdict { margin-bottom: .9rem; padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.6; font-weight: 500; }
+    .comp-verdict.fair   { background: var(--green-bg); color: var(--green-text); }
+    .comp-verdict.over   { background: var(--red-bg);   color: var(--red-text); }
+    .comp-verdict.under  { background: var(--teal-bg);  color: var(--teal-text); }
+    .comp-verdict.info   { background: #e6f1fb; color: #185fa5; }
+    .comp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .comp-table th { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-faint); padding: 5px 8px; text-align: left; border-bottom: 0.5px solid var(--border); font-weight: 500; }
+    .comp-table td { padding: 6px 8px; border-bottom: 0.5px solid var(--border); color: var(--text-muted); }
+    .comp-table tr:last-child td { border-bottom: none; }
+    .comp-table tr:hover td { background: var(--bg); }
+    .comp-sqmprice { font-weight: 500; color: var(--text); }
+    .bid-pos { color: var(--green-text); font-size: 11px; }
+    .bid-neg { color: var(--red-text); font-size: 11px; }
+    .comp-empty { font-size: 13px; color: var(--text-faint); font-style: italic; padding: .5rem 0; }
+    .comp-street-label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-faint); margin: 1rem 0 .5rem; }
+    @media (max-width: 540px) { .comp-stats-row { grid-template-columns: 1fr 1fr; } }
+  </style>
 </head>
 <body>
+
 <header>
-  <a class="logo" href="/">Bostads<em>analys</em></a>
+  <a class="logo" href="/">Bopris<em>kollen</em></a>
   <span class="header-tag">AI-driven värdering</span>
 </header>
+
 <div class="container">
   <div class="hero">
-    <p class="eyebrow">Booli-baserad analys</p>
+    <p class="eyebrow">Oberoende köparanalys</p>
     <h1>Värdera din <em>bostad</em><br>med AI-stöd</h1>
-    <p>Klistra in en Booli-länk så hämtar AI:n annonsdata automatiskt — eller fyll i uppgifterna manuellt för en oberoende köparanalys.</p>
+    <p>Klistra in en länk från Booli eller Hemnet, ladda upp bilder från visningen och få en komplett oberoende köparanalys.</p>
   </div>
 
-  <p class="sec-label">Hämta från Booli</p>
+  <p class="sec-label">Steg 1 — Klistra in annonslänken</p>
   <div class="card">
-    <div class="card-title"><span class="dot"></span> Booli-länk</div>
-    <div class="url-row">
-      <input type="url" id="booliUrl" placeholder="https://www.booli.se/annons/lagenhet/..." />
-      <button class="btn-secondary" id="fetchBtn" onclick="fetchBooli()">Hämta annons</button>
+    <div class="card-title"><span class="dot"></span> Mäklarens annons</div>
+    <div class="url-inputs">
+      <div class="url-field">
+        <label>Mäklarlänk <span class="source-badge" style="background:#f0ede8;color:#6b6860;font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px">erikolsson · husmanhagberg · bjurfors m.fl.</span></label>
+        <input type="url" id="agentUrl" placeholder="https://www.husmanhagberg.se/objekt/... eller erikolsson.se/..." />
+      </div>
+      <p style="font-size:11px;color:var(--text-faint);margin-top:-4px">Klistra in länken direkt från mäklarens hemsida eller från Booli ("Läs mer hos mäklaren")</p>
     </div>
-    <div class="fetch-status" id="fetchStatus"></div>
+    <button class="fetch-btn" id="fetchBtn" onclick="fetchListing()">Hämta annons &amp; analysera bilder</button>
+    <div class="status-bar" id="fetchStatus"></div>
 
-
-
-    <div class="field">
-      <label>Eller klistra in annonstexten direkt (från Booli)</label>
-      <textarea id="rawPaste" placeholder="Klistra in hela annonstexten härifrån Booli — titel, beskrivning, fakta, BRF-info osv. AI:n extraherar alla uppgifter automatiskt."></textarea>
+    <!-- Bildanalys-progress (visas automatiskt för Booli-länkar) -->
+    <div class="img-progress" id="imgProgress">
+      <div class="img-progress-label" id="imgProgressLabel">Analyserar annonsbilder...</div>
+      <div class="img-progress-bar"><div class="img-progress-fill" id="imgProgressFill" style="width:0%"></div></div>
     </div>
-    <button class="extract-btn" onclick="extractFromPaste()">Extrahera från text</button>
+
+    <!-- Skickskort (visas när bildanalysen är klar) -->
+    <div class="condition-card" id="conditionCard">
+      <div class="condition-hdr">
+        <span class="condition-title">Skicksanalys från annonsbilder</span>
+        <span class="condition-badge" id="conditionBadge">–</span>
+      </div>
+      <div class="condition-body">
+        <div id="conditionSummary"></div>
+        <div class="condition-rooms" id="conditionRooms"></div>
+        <div class="condition-features" id="conditionFeatures"></div>
+        <div class="condition-tips" id="conditionTips"></div>
+      </div>
+    </div>
   </div>
 
-  <div class="divider" style="margin:0.4rem 0 1.2rem"></div>
-  <p class="sec-label">Annonsdata <span style="color:var(--text-faint);font-size:10px;text-transform:none;letter-spacing:0;margin-left:5px">(fylls i automatiskt eller manuellt)</span></p>
+  <div class="divider" style="margin:.4rem 0 1.2rem"></div>
+  <p class="sec-label">Steg 2 — Ladda upp bilder från visningen <span style="color:var(--text-faint);font-size:10px;text-transform:none;letter-spacing:0;margin-left:5px">(valfritt men rekommenderat)</span></p>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span> Bilder för skicksanalys</div>
+    <div class="image-upload-area" id="uploadArea" onclick="document.getElementById('imageInput').click()" ondragover="handleDragOver(event)" ondrop="handleDrop(event)" ondragleave="handleDragLeave(event)">
+      <svg class="upload-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="8" fill="currentColor" fill-opacity="0.08"/>
+        <path d="M16 10v12M10 16l6-6 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <p class="upload-text">Dra och släpp bilder här, eller klicka för att välja</p>
+      <p class="upload-sub">Kök, badrum, vardagsrum, balkong — ju fler desto bättre analys</p>
+    </div>
+    <input type="file" id="imageInput" multiple accept="image/*" style="display:none" onchange="handleImageSelect(event)" />
+    <div class="image-preview-grid" id="previewGrid"></div>
+    <button class="analyze-images-btn" id="analyzeImagesBtn" onclick="analyzeImages()" style="display:none">Analysera bilder med AI</button>
+    <div class="image-analysis-result" id="imageAnalysisResult"></div>
+
+    <div class="observations-area">
+      <div class="field" style="margin-top:12px">
+        <label>Egna observationer från visningen (valfritt)</label>
+        <textarea id="observations" placeholder="Ex: Balkongen var skymd av byggnaden framför, lite solljus i köket, badrummet verkade slitet, fönstren var gamla..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider" style="margin:.4rem 0 1.2rem"></div>
+  <p class="sec-label">Steg 3 — Kontrollera data <span style="color:var(--text-faint);font-size:10px;text-transform:none;letter-spacing:0;margin-left:5px">(fylls i automatiskt)</span></p>
 
   <div class="card">
     <div class="card-title"><span class="dot"></span> Grundfakta</div>
     <div class="g2" style="margin-bottom:11px">
-      <div class="field"><label>Adress</label><input type="text" id="address" placeholder="Kungsgatan 12, Stockholm" /></div>
-      <div class="field"><label>Område / stadsdel</label><input type="text" id="area" placeholder="Östermalm" /></div>
+      <div class="field"><label>Adress</label><input type="text" id="address" placeholder="Fylls i automatiskt" /></div>
+      <div class="field"><label>Område / stadsdel</label><input type="text" id="area" placeholder="Fylls i automatiskt" /></div>
     </div>
     <div class="g3" style="margin-bottom:11px">
-      <div class="field"><label>Storlek (kvm)</label><input type="number" id="sqm" placeholder="68" /></div>
-      <div class="field"><label>Antal rum</label><input type="number" id="rooms" placeholder="3" /></div>
-      <div class="field"><label>Utropspris (kr)</label><input type="number" id="asking_price" placeholder="4500000" /></div>
+      <div class="field"><label>Storlek (kvm)</label><input type="number" id="sqm" placeholder="–" /></div>
+      <div class="field"><label>Antal rum</label><input type="number" id="rooms" placeholder="–" /></div>
+      <div class="field"><label>Utropspris (kr)</label><input type="number" id="asking_price" placeholder="–" /></div>
     </div>
     <div class="g3">
-      <div class="field"><label>Månadsavgift (kr)</label><input type="number" id="monthly_fee" placeholder="3800" /></div>
-      <div class="field"><label>Våningsplan</label><input type="number" id="floor" placeholder="4" /></div>
-      <div class="field"><label>Byggår</label><input type="number" id="build_year" placeholder="1965" /></div>
+      <div class="field"><label>Månadsavgift (kr)</label><input type="number" id="monthly_fee" placeholder="–" /></div>
+      <div class="field"><label>Våningsplan</label><input type="number" id="floor" placeholder="–" /></div>
+      <div class="field"><label>Byggår</label><input type="number" id="build_year" placeholder="–" /></div>
     </div>
   </div>
 
   <div class="card">
     <div class="card-title"><span class="dot"></span> Egenskaper</div>
-    <div class="field" style="margin-bottom:11px">
-      <label>Hiss</label>
+    <div class="field" style="margin-bottom:11px"><label>Hiss</label>
       <div class="tg" id="elevator">
         <button class="tb active" data-val="yes">Ja</button>
         <button class="tb" data-val="no">Nej</button>
+        <button class="tb" data-val="unknown">Vet ej</button>
       </div>
     </div>
-    <div class="field" style="margin-bottom:11px">
-      <label>Skick</label>
+    <div class="field" style="margin-bottom:11px"><label>Skick</label>
       <div class="tg" id="condition">
         <button class="tb" data-val="newly_renovated">Nyrenoverad</button>
         <button class="tb active" data-val="good">Gott skick</button>
         <button class="tb" data-val="needs_renovation">Renoveringsobjekt</button>
       </div>
     </div>
-    <div class="field" style="margin-bottom:11px">
-      <label>Läge</label>
+    <div class="field" style="margin-bottom:11px"><label>Läge</label>
       <div class="tg" id="orientation">
-        <button class="tb active" data-val="south">Söderläge</button>
+        <button class="tb" data-val="south">Söderläge</button>
         <button class="tb" data-val="north">Norrläge</button>
         <button class="tb" data-val="east_west">Öst/Väst</button>
         <button class="tb" data-val="corner">Hörnläge</button>
+        <button class="tb active" data-val="unknown">Vet ej</button>
       </div>
     </div>
-    <div class="field">
-      <label>Balkong / uteplats</label>
+    <div class="field"><label>Balkong / uteplats</label>
       <div class="tg" id="balcony">
         <button class="tb active" data-val="balcony">Balkong</button>
         <button class="tb" data-val="patio">Uteplats</button>
@@ -169,20 +310,25 @@ footer{text-align:center;padding:2rem;font-size:12px;color:var(--text-faint);bor
   <div class="card">
     <div class="card-title"><span class="dot"></span> BRF-information</div>
     <div class="g3" style="margin-bottom:11px">
-      <div class="field"><label>Föreningens namn</label><input type="text" id="brf_name" placeholder="BRF Solbacken" /></div>
-      <div class="field"><label>Skuld per kvm (kr)</label><input type="number" id="brf_debt" placeholder="4200" /></div>
-      <div class="field">
-        <label>Ekonomisk status</label>
-        <div class="tg" id="brf_status" style="margin-top:4px">
-          <button class="tb active" data-val="healthy">Sund</button>
-          <button class="tb" data-val="medium">OK</button>
-          <button class="tb" data-val="weak">Svag</button>
-        </div>
+      <div class="field"><label>Föreningens namn</label><input type="text" id="brf_name" placeholder="Fylls i automatiskt" /></div>
+      <div class="field"><label>Avgift enligt annons (kr/mån)</label><input type="number" id="monthly_fee_listed" placeholder="–" /></div>
+      <div class="field"><label>Uppskattad total kostnad (kr/mån)</label><input type="number" id="monthly_fee_total" placeholder="–" /></div>
+    </div>
+    <div class="field" style="margin-bottom:11px">
+      <label>Skuld per kvm (kr)</label>
+      <input type="number" id="brf_debt" placeholder="–" />
+    </div>
+    <div class="field" style="margin-bottom:11px">
+      <label>Ekonomisk status</label>
+      <div class="tg" id="brf_status">
+        <button class="tb active" data-val="healthy">Sund</button>
+        <button class="tb" data-val="medium">OK</button>
+        <button class="tb" data-val="weak">Svag</button>
       </div>
     </div>
     <div class="field">
-      <label>Extra info / noteringar</label>
-      <textarea id="extra_info" placeholder="Övrig info från annonsen: planerade renoveringar, genomgångna åtgärder, avgiftshistorik, etc."></textarea>
+      <label>Extra info från annonsen</label>
+      <textarea id="extra_info" placeholder="Fylls i automatiskt med relevant info från annonsen"></textarea>
     </div>
   </div>
 
@@ -191,227 +337,598 @@ footer{text-align:center;padding:2rem;font-size:12px;color:var(--text-faint);bor
   <div class="results" id="results">
     <div class="divider"></div>
     <p class="sec-label">Köparanalys</p>
+    <div class="source-row" id="sourceRow" style="display:none">
+      Analys baserad på data från <span class="source-pill" id="sourcePill"></span>
+    </div>
     <div class="factors-grid" id="factorsGrid"></div>
+
     <div class="verdict-card">
-      <div class="vhdr">
-        <span class="vlabel">Prisvärdering</span>
-        <span class="vtag" id="verdictTag">–</span>
-      </div>
+      <div class="vhdr"><span class="vlabel">Prisvärdering</span><span class="vtag" id="verdictTag">–</span></div>
       <div class="price-box">
         <div class="price-main" id="estPrice">–</div>
         <div class="price-range" id="priceRange">–</div>
       </div>
       <div class="analysis-body loading" id="analysisText">Analyserar...</div>
     </div>
+
+    <div class="risk-card" id="riskCard" style="display:none">
+      <div class="vhdr"><span class="vlabel">Riskfaktorer & att tänka på inför visning</span></div>
+      <div class="risk-body" id="riskText"></div>
+    </div>
+
+    <!-- Jämförelseförsäljningar -->
+    <div class="comp-card" id="compCard" style="display:none">
+      <div class="vhdr">
+        <span class="vlabel">Jämförelseförsäljningar</span>
+        <span id="compMeta" style="font-size:11px;color:var(--text-faint)"></span>
+      </div>
+      <div class="comp-tabs">
+        <button class="comp-tab active" onclick="showCompTab('3m',this)">3 månader</button>
+        <button class="comp-tab" onclick="showCompTab('6m',this)">6 månader</button>
+        <button class="comp-tab" onclick="showCompTab('1y',this)">1 år</button>
+        <button class="comp-tab" onclick="showCompTab('street',this)" id="streetTabBtn" style="display:none">Samma gata</button>
+      </div>
+      <div class="comp-body">
+        <div id="compVerdictBox"></div>
+        <div id="compContent3m"></div>
+        <div id="compContent6m" style="display:none"></div>
+        <div id="compContent1y" style="display:none"></div>
+        <div id="compContentStreet" style="display:none"></div>
+        <p style="font-size:11px;color:var(--text-faint);margin-top:12px">Källa: Booli slutpriser. Liknande bostadsrätter ±30% storlek.</p>
+      </div>
+    </div>
   </div>
 </div>
 
-<footer>Bostadsanalys använder AI för att ge köpare ett oberoende perspektiv. Inte finansiell rådgivning.</footer>
+<footer>Bopriskollen använder AI för att ge köpare ett oberoende perspektiv. Inte finansiell rådgivning.</footer>
 
 <script>
-const API = '/api/analyze';
+  // v_DEPLOY_CHECK_APR7_1730
+  const WORKER = 'https://plain-term-910b.tina-emamii123.workers.dev';
+  let uploadedImages   = [];
+  let imageAnalysisSummary = '';
+  let comparableData   = null; // Booli-jämförelsedata från analyze-agent
 
-function getToggle(id){const a=document.querySelector(`#${id} .tb.active`);return a?a.dataset.val:null}
-function setToggle(id,val){const g=document.getElementById(id);if(!g||!val)return;g.querySelectorAll('.tb').forEach(b=>b.classList.toggle('active',b.dataset.val===val))}
-function setVal(id,val){if(val===null||val===undefined||val==='')return;const el=document.getElementById(id);if(el)el.value=val}
-function fmt(n){return new Intl.NumberFormat('sv-SE').format(Math.round(n))}
-function setStatus(msg,type){const el=document.getElementById('fetchStatus');el.textContent=msg;el.className='fetch-status'+(type?' '+type:'')}
+  // ── UTILS ────────────────────────────────────────────────
+  function fmt(n)  { return n ? new Intl.NumberFormat('sv-SE').format(Math.round(n)) : '–'; }
+  function getToggle(id) { const a = document.querySelector(`#${id} .tb.active`); return a ? a.dataset.val : null; }
+  function setToggle(id, val) {
+    if (!val || val === 'unknown') return;
+    const g = document.getElementById(id);
+    if (!g) return;
+    let matched = false;
+    g.querySelectorAll('.tb').forEach(b => { if (b.dataset.val === val) { b.classList.add('active'); matched = true; } else b.classList.remove('active'); });
+    if (!matched) { g.querySelectorAll('.tb').forEach(b => b.classList.remove('active')); }
+  }
+  function setVal(id, val) {
+    if (val === null || val === undefined || val === '') return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = val;
+    el.classList.add('filled');
+    setTimeout(() => el.classList.remove('filled'), 2000);
+  }
+  function setStatus(id, msg, type) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.className = 'status-bar show ' + type;
+  }
 
-document.querySelectorAll('.tg').forEach(g=>{
-  g.querySelectorAll('.tb').forEach(b=>{
-    b.addEventListener('click',()=>{g.querySelectorAll('.tb').forEach(x=>x.classList.remove('active'));b.classList.add('active')});
-  });
-});
-
-async function callAPI(body){
-  const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  return res.json();
-}
-
-// ── Arkivera planritning tyst i bakgrunden ───────────────────────
-async function archiveBlueprint(url) {
-  try {
-    await fetch('/api/archive-blueprint', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ url }),
+  document.querySelectorAll('.tg').forEach(g => {
+    g.querySelectorAll('.tb').forEach(b => {
+      b.addEventListener('click', () => {
+        g.querySelectorAll('.tb').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+      });
     });
-    // Fel loggas server-side i Vercel Logs — inget visas för användaren
-  } catch (_) {}
-}
-// ─────────────────────────────────────────────────────────────────
+  });
 
-async function fetchBooli(){
-  const url=document.getElementById('booliUrl').value.trim();
-  if(!url){setStatus('Ange en giltig URL.','err');return}
-  const btn=document.getElementById('fetchBtn');
-  btn.disabled=true;btn.textContent='Hämtar...';
-  setStatus('Hämtar annonsdata...','');
+  // ── BILD-UPPLADDNING ─────────────────────────────────────
+  function handleDragOver(e) { e.preventDefault(); document.getElementById('uploadArea').classList.add('dragover'); }
+  function handleDragLeave()  { document.getElementById('uploadArea').classList.remove('dragover'); }
+  function handleDrop(e)      { e.preventDefault(); document.getElementById('uploadArea').classList.remove('dragover'); processFiles(e.dataTransfer.files); }
+  function handleImageSelect(e) { processFiles(e.target.files); }
 
-  try{
-    // Steg 1: Hämta rådata från mäklarsidan via Worker
-    const listing = await fetch('https://plain-term-910b.tina-emamii123.workers.dev/fetch-listing',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({url})
-    }).then(r=>r.json());
+  function processFiles(files) {
+    Array.from(files).forEach(file => {
+      if (!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        uploadedImages.push({ name: file.name, data: e.target.result, base64: e.target.result.split(',')[1], mediaType: file.type });
+        renderPreviews();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
-    const m = listing.metadata || {};
+  function renderPreviews() {
+    const grid = document.getElementById('previewGrid');
+    grid.innerHTML = uploadedImages.map((img, i) => `
+      <div class="preview-item">
+        <img src="${img.data}" alt="${img.name}" />
+        <button class="preview-remove" onclick="removeImage(${i})">×</button>
+        <div class="preview-label">${img.name.split('.')[0].slice(0, 12)}</div>
+      </div>`).join('');
+    document.getElementById('analyzeImagesBtn').style.display = uploadedImages.length > 0 ? 'block' : 'none';
+  }
 
-    // Steg 2: Normalisera camelCase → snake_case (Worker returnerar camelCase)
-    const normalized = {
-      address:      m.address || m.streetAddress || '',
-      area:         m.area || m.areaName || '',
-      sqm:          m.sqm || m.livingArea || null,
-      rooms:        m.rooms || m.numberOfRooms || null,
-      asking_price: m.askingPrice || m.listPrice || null,
-      monthly_fee:  m.monthlyFee || m.rent || null,
-      floor:        m.floor || null,
-      build_year:   m.buildYear || m.constructionYear || null,
-      elevator:     m.hasElevator ? 'yes' : 'no',
-      condition:    'good',
-      orientation:  'south',
-      balcony:      m.hasBalcony ? 'balcony' : 'none',
-      brf_name:     m.brf || m.brfName || '',
-      brf_debt:     null,
-      brf_status:   'healthy',
-      extra_info:   m.description ? m.description.substring(0,300) : '',
-    };
+  function removeImage(i) { uploadedImages.splice(i, 1); renderPreviews(); }
 
-    if(!normalized.sqm && !normalized.asking_price && !normalized.address){
-      throw new Error('Otillräcklig data från mäklarsidan');
+  async function analyzeImages() {
+    if (uploadedImages.length === 0) return;
+    const btn = document.getElementById('analyzeImagesBtn');
+    btn.disabled = true; btn.textContent = 'Analyserar bilder...';
+    const result = document.getElementById('imageAnalysisResult');
+    result.className = 'image-analysis-result show';
+    result.innerHTML = '<p style="color:var(--text-faint);font-style:italic;font-size:13px">AI:n analyserar bilderna...</p>';
+    try {
+      const res = await fetch(WORKER + '/', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'analyze_images', images: uploadedImages.slice(0, 6).map(img => ({ type: 'image', source: { type: 'base64', media_type: img.mediaType, data: img.base64 } })) })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      imageAnalysisSummary = data.analysis;
+      const lines = data.analysis.split('\n').filter(l => l.trim());
+      const scoreLine = lines.find(l => l.includes('SKICK:'));
+      const score = scoreLine ? scoreLine.replace('SKICK:', '').trim() : '–';
+      const scoreNum = parseInt(score);
+      const scoreClass = scoreNum >= 7 ? 'score-good' : scoreNum >= 5 ? 'score-medium' : 'score-bad';
+      result.innerHTML = `
+        <div class="score-row">
+          <span class="score-badge ${scoreClass}">${score}/10</span>
+          <span class="score-label">Skickspoäng baserat på ${uploadedImages.length} bilder</span>
+        </div>
+        <div style="font-size:13px;line-height:1.75;color:var(--text-muted);white-space:pre-wrap">${data.analysis.replace(/SKICK:.*\n?/, '').trim()}</div>`;
+    } catch (e) {
+      result.innerHTML = `<p style="color:var(--red-text);font-size:13px">Något gick fel: ${e.message}</p>`;
+    }
+    btn.disabled = false; btn.textContent = 'Analysera bilder med AI';
+  }
+
+
+  // Arkivera planritning tyst i bakgrunden
+  async function archiveBlueprint(url) {
+    try {
+      await fetch('/api/archive-blueprint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+    } catch (_) {}
+  }
+
+    // ── HÄMTA & ANALYSERA MÄKLARLÄNK ─────────────────────────
+  async function fetchListing() {
+    const agentUrl = document.getElementById('agentUrl').value.trim();
+    if (!agentUrl) { setStatus('fetchStatus', 'Ange en mäklarlänk.', 'err'); return; }
+
+    const btn = document.getElementById('fetchBtn');
+    btn.disabled = true; btn.textContent = 'Hämtar...';
+    setStatus('fetchStatus', 'Hämtar annons och analyserar bilder...', 'loading');
+
+    const progress  = document.getElementById('imgProgress');
+    const progLabel = document.getElementById('imgProgressLabel');
+    const progFill  = document.getElementById('imgProgressFill');
+    const setP = (pct, label) => { progFill.style.width = pct + '%'; progLabel.textContent = label; };
+
+    try {
+      progress.classList.add('show');
+      setP(10, 'Hämtar mäklarens sida...');
+
+      const res = await fetch(`${WORKER}/analyze-agent`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: agentUrl })
+      });
+
+      setP(60, 'Analyserar bilder med Claude Vision...');
+      const data = await res.json();
+
+      if (!data.success) {
+        progress.classList.remove('show');
+        setStatus('fetchStatus', 'Fel: ' + (data.error || 'Något gick fel'), 'err');
+        btn.disabled = false; btn.textContent = 'Hämta annons & analysera bilder';
+        return;
+      }
+
+      setP(90, `Klar — analyserade ${data.imageCount} bilder`);
+      setTimeout(() => progress.classList.remove('show'), 2000);
+
+      const m = data.metadata || {};
+      if (m.address)     setVal('address', m.address);
+      if (m.area)        setVal('area', m.area);
+      if (m.sqm)         setVal('sqm', m.sqm);
+      if (m.rooms)       setVal('rooms', m.rooms);
+      if (m.floor)       setVal('floor', m.floor);
+      if (m.buildYear)   setVal('build_year', m.buildYear);
+      if (m.askingPrice) setVal('asking_price', String(m.askingPrice).replace(/\s/g,''));
+      if (m.monthlyFee)  { setVal('monthly_fee', m.monthlyFee); setVal('monthly_fee_listed', m.monthlyFee); }
+      if (m.brf)         setVal('brf_name', m.brf);
+      if (m.hasElevator) setToggle('elevator', 'yes');
+      if (m.hasBalcony)  setToggle('balcony', 'balcony');
+
+      if (m.hiddenFees?.found && m.hiddenFees?.warning) {
+        const existing = document.getElementById('feeWarning');
+        if (existing) existing.remove();
+        const div = document.createElement('div');
+        div.id = 'feeWarning';
+        div.style.cssText = 'margin-top:10px;padding:10px 14px;background:#fcebeb;border-radius:8px;font-size:13px;color:#a32d2d;line-height:1.6;';
+        div.textContent = m.hiddenFees.warning;
+        document.getElementById('fetchStatus').after(div);
+        if (m.hiddenFees.estimatedTotal) setVal('monthly_fee_total', m.hiddenFees.estimatedTotal);
+      }
+
+      const pill = document.getElementById('sourcePill');
+      pill.textContent = data.source || 'Mäklare';
+      pill.className = 'source-pill';
+      pill.style.cssText = 'background:#f0ede8;color:#6b6860;font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;';
+      document.getElementById('sourceRow').style.display = 'flex';
+
+      let filled = Object.values(m).filter(v => v !== null && v !== false && v !== undefined).length;
+      setStatus('fetchStatus', `Klart! ${data.imageCount} bilder analyserade, ${filled} datafält hämtade.`, 'ok');
+
+      if (data.analysis) {
+        imageAnalysisSummary = buildImageSummaryText(data.analysis);
+        renderConditionCard(data.analysis);
+      }
+
+      if (data.comparableData) {
+        comparableData = data.comparableData;
+        renderComparables(data.comparableData, m);
+      }
+
+      // Arkivera planritning tyst
+      archiveBlueprint(agentUrl);
+
+    } catch (e) {
+      progress.classList.remove('show');
+      setStatus('fetchStatus', 'Något gick fel: ' + e.message, 'err');
     }
 
-    parseAndFill(JSON.stringify(normalized),'fetch');
-
-    // Steg 3: Arkivera planritning tyst i bakgrunden
-    archiveBlueprint(url);
-
-  }catch(e){
-    setStatus('Kunde inte hämta. Klistra in texten manuellt.','err');
+    btn.disabled = false; btn.textContent = 'Hämta annons & analysera bilder';
   }
-  btn.disabled=false;btn.textContent='Hämta annons';
-}
 
-async function extractFromPaste(){
-  const raw=document.getElementById('rawPaste').value.trim();
-  if(!raw){setStatus('Klistra in annonstext nedan först.','err');return}
-  setStatus('Extraherar data...','');
-  try{
-    const data=await callAPI({
-      model:'claude-sonnet-4-20250514',max_tokens:800,
-      messages:[{role:'user',content:`Extrahera bostadsdata från denna annonstext och returnera ENBART giltig JSON:\n\n${raw}\n\nJSON-format:\n{"address":"","area":"","sqm":null,"rooms":null,"asking_price":null,"monthly_fee":null,"floor":null,"build_year":null,"elevator":"yes|no","condition":"newly_renovated|good|needs_renovation","orientation":"south|north|east_west|corner","balcony":"balcony|patio|none","brf_name":"","brf_debt":null,"brf_status":"healthy|medium|weak","extra_info":"sammanfattning av viktig info"}\n\nReturnera BARA JSON.`}]
+
+
+
+
+  // ── BILDANALYS-RENDERING ─────────────────────────────────
+  function buildImageSummaryText(a) {
+    const lines = [`Skick: ${a.condition} (${a.conditionScore}/5)`, a.summary];
+    if (a.lightAssessment) lines.push('Ljus: ' + a.lightAssessment);
+    if (a.rooms?.kitchen && !a.rooms.kitchen.includes('syns inte')) lines.push('Kök: ' + a.rooms.kitchen);
+    if (a.rooms?.bathroom && !a.rooms.bathroom.includes('syns inte')) lines.push('Badrum: ' + a.rooms.bathroom);
+    if (a.rooms?.living && !a.rooms.living.includes('syns inte')) lines.push('Vardagsrum: ' + a.rooms.living);
+    if (a.renovationNeeds?.length) lines.push('Renoveringsbehov: ' + a.renovationNeeds.join(', '));
+    if (a.priceImpact) lines.push('Priseffekt: ' + a.priceImpact);
+    if (a.priceAssessment) lines.push('Prisjämförelse: ' + a.priceAssessment);
+    return lines.join('\n');
+  }
+
+  function renderConditionCard(a) {
+    const card  = document.getElementById('conditionCard');
+    const score = a.conditionScore || 3;
+    const badge = document.getElementById('conditionBadge');
+    badge.textContent = a.condition || 'okänt';
+    badge.className = `condition-badge cond-${score}`;
+    document.getElementById('conditionSummary').textContent = a.summary || '';
+
+
+    const rooms = document.getElementById('conditionRooms');
+    rooms.innerHTML = [
+      { label: 'Kök', text: a.rooms?.kitchen },
+      { label: 'Badrum', text: a.rooms?.bathroom },
+      { label: 'Vardagsrum', text: a.rooms?.living },
+      { label: 'Sovrum', text: a.rooms?.bedroom },
+      { label: 'Förvaring', text: a.rooms?.storage },
+    ].filter(r => r.text && r.text !== 'null' && r.text !== '–')
+     .map(r => `
+      <div class="condition-room">
+        <div class="condition-room-label">${r.label}</div>
+        <div class="condition-room-text">${r.text}</div>
+      </div>`).join('');
+    const f = a.features || {};
+    document.getElementById('conditionFeatures').innerHTML = [
+      { key: 'hasFireplace',   label: 'Eldstad' },
+      { key: 'hasKakelugn',    label: 'Kakelugn' },
+      { key: 'hasParquet',     label: 'Parkettgolv' },
+      { key: 'hasStucco',      label: 'Stuckatur' },
+      { key: 'hasBalcony',     label: 'Balkong' },
+      { key: 'modernKitchen',  label: 'Modernt kök' },
+      { key: 'modernBathroom', label: 'Modernt badrum' },
+      { key: 'originalDetails',label: 'Originaldetaljer' },
+    ].filter(ft => f[ft.key] !== null && f[ft.key] !== undefined)
+     .map(ft => `<span class="feat-tag ${f[ft.key] ? 'feat-yes' : 'feat-no'}">${f[ft.key] ? '✓' : '✗'} ${ft.label}</span>`)
+     .join('');
+
+    const tips = document.getElementById('conditionTips');
+    const tipItems = [];
+    if (a.unverifiedClaims?.length)
+      tipItems.push(`<div style="margin-bottom:8px;padding:8px 10px;background:#faeeda;border-radius:6px;font-size:12px;color:#633806"><strong>Ej verifierbart från bilderna:</strong> ${a.unverifiedClaims.join(' · ')}</div>`);
+    if (a.investigationPoints?.length) {
+      tipItems.push(`<div style="margin-bottom:6px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint)">Undersök vidare</div>`);
+      tipItems.push(...a.investigationPoints.map(t => `<div class="condition-tip">${t}</div>`));
+    }
+    if (a.buyerTips?.length) {
+      tipItems.push(`<div style="margin:10px 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint)">På visningen</div>`);
+      tipItems.push(...a.buyerTips.map(t => `<div class="condition-tip">${t}</div>`));
+    }
+    tips.innerHTML = tipItems.join('');
+    card.classList.add('show');
+  }
+
+  // ── JÄMFÖRELSEFÖRSÄLJNINGAR ─────────────────────────────
+  let activeCompTab = '3m';
+
+  function showCompTab(tab, el) {
+    activeCompTab = tab;
+    document.querySelectorAll('.comp-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    ['3m','6m','1y','street'].forEach(t => {
+      const el = document.getElementById('compContent' + t.charAt(0).toUpperCase() + t.slice(1).replace('m','m').replace('y','y'));
+      // map tab ids to element ids
     });
-    const text=data.content?.map(b=>b.text||'').join('')||'';
-    parseAndFill(text,'paste');
-  }catch(e){setStatus('Extraheringen misslyckades. Fyll i manuellt.','err')}
-}
+    document.getElementById('compContent3m').style.display     = tab === '3m' ? '' : 'none';
+    document.getElementById('compContent6m').style.display     = tab === '6m' ? '' : 'none';
+    document.getElementById('compContent1y').style.display     = tab === '1y' ? '' : 'none';
+    document.getElementById('compContentStreet').style.display = tab === 'street' ? '' : 'none';
+  }
 
-function parseAndFill(text,source){
-  try{
-    const clean=text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
-    const s=clean.indexOf('{'),e=clean.lastIndexOf('}');
-    if(s===-1||e===-1)throw new Error('no json');
-    const d=JSON.parse(clean.slice(s,e+1));
-    setVal('address',d.address);setVal('area',d.area);setVal('sqm',d.sqm);
-    setVal('rooms',d.rooms);setVal('asking_price',d.asking_price);
-    setVal('monthly_fee',d.monthly_fee);setVal('floor',d.floor);
-    setVal('build_year',d.build_year);setVal('brf_name',d.brf_name);
-    setVal('brf_debt',d.brf_debt);setVal('extra_info',d.extra_info);
-    if(d.elevator)setToggle('elevator',d.elevator);
-    if(d.condition)setToggle('condition',d.condition);
-    if(d.orientation)setToggle('orientation',d.orientation);
-    if(d.balcony)setToggle('balcony',d.balcony);
-    if(d.brf_status)setToggle('brf_status',d.brf_status);
-    setStatus(source==='fetch'?'Annonsdata hämtad och ifylld.':'Data extraherad och ifylld.','ok');
-  }catch(e){setStatus('Kunde inte tolka svaret. Kontrollera fälten nedan.','err')}
-}
+  function renderComparables(cd, metadata) {
+    const card = document.getElementById('compCard');
+    if (!cd) return;
 
-function buildFactors(data){
-  const floor=parseInt(data.floor)||2;
-  const hasElev=data.elevator==='yes';
-  const factors=[
-    {label:'Hiss',value:hasElev?'Finns':'Saknas',cls:hasElev?'ipos':floor>3?'ineg':'ineu',note:hasElev?'Värdehöjande':floor>3?'Värdesänkande':'Liten påverkan'},
-    {label:'Våning',value:`${floor}tr`,cls:floor>=3?'ipos':floor===1?'ineg':'ineu',note:floor>=3?'Attraktiv höjd':floor===1?'Bottenvåning':'Neutral'},
-    {label:'Skick',value:{newly_renovated:'Nyrenoverad',good:'Gott skick',needs_renovation:'Renovering'}[data.condition]||'–',cls:data.condition==='newly_renovated'?'ipos':data.condition==='needs_renovation'?'ineg':'ineu',note:data.condition==='needs_renovation'?'Budget för renovering':data.condition==='newly_renovated'?'Inget att åtgärda':''},
-    {label:'BRF-ekonomi',value:{healthy:'Sund',medium:'OK',weak:'Svag'}[data.brf_status]||'–',cls:data.brf_status==='healthy'?'ipos':data.brf_status==='weak'?'ineg':'ineu',note:data.brf_status==='weak'?'Risk: avgiftshöjning':data.brf_status==='healthy'?'Stabil förening':''}
-  ];
-  document.getElementById('factorsGrid').innerHTML=factors.map(f=>`
-    <div class="fc">
-      <div class="fc-label">${f.label}</div>
-      <div class="fc-value ${f.cls}">${f.cls==='ipos'?'+':f.cls==='ineg'?'−':'±'} ${f.value}</div>
-      ${f.note?`<div class="fc-note ${f.cls}">${f.note}</div>`:''}
-    </div>`).join('');
-}
+    const sqm        = parseFloat(document.getElementById('sqm').value) || cd.sqmRef;
+    const asking     = parseInt(document.getElementById('asking_price').value) || null;
+    const askSqmPrice = (asking && sqm) ? Math.round(asking / sqm) : null;
 
-async function runAnalysis(){
-  const btn=document.getElementById('analyzeBtn');
-  const data={
-    address:document.getElementById('address').value||'Okänd adress',
-    area:document.getElementById('area').value||'Okänt område',
-    sqm:document.getElementById('sqm').value,
-    rooms:document.getElementById('rooms').value,
-    asking_price:document.getElementById('asking_price').value,
-    monthly_fee:document.getElementById('monthly_fee').value,
-    floor:parseInt(document.getElementById('floor').value)||2,
-    build_year:document.getElementById('build_year').value,
-    brf_name:document.getElementById('brf_name').value,
-    brf_debt:document.getElementById('brf_debt').value,
-    extra_info:document.getElementById('extra_info').value,
-    elevator:getToggle('elevator'),condition:getToggle('condition'),
-    orientation:getToggle('orientation'),balcony:getToggle('balcony'),
-    brf_status:getToggle('brf_status'),
-  };
-  btn.disabled=true;btn.textContent='Analyserar...';
-  document.getElementById('results').classList.add('visible');
-  buildFactors(data);
-  const aEl=document.getElementById('analysisText');
-  aEl.className='analysis-body loading';aEl.textContent='Hämtar marknadsinformation och beräknar värdering...';
-  document.getElementById('estPrice').textContent='–';
-  document.getElementById('priceRange').textContent='–';
-  document.getElementById('verdictTag').textContent='–';
-  document.getElementById('verdictTag').className='vtag';
-  const sqmPrice=data.asking_price&&data.sqm?Math.round(data.asking_price/data.sqm):null;
-  const prompt=`Du är en oberoende bostadsanalytiker i Sverige med djup kunskap om Stockholms bostadsmarknad och historiska försäljningsdata från Booli. Analysera denna bostadsannons ur ett köparperspektiv och ge en realistisk marknadsvärdering.
+    document.getElementById('compMeta').textContent = `${cd.areaName}${cd.street ? ' · ' + cd.street : ''}`;
+
+    // Prisvärdering-badge
+    const verdictBox = document.getElementById('compVerdictBox');
+    const s6 = cd.periods?.['6mån'];
+    if (askSqmPrice && s6?.median) {
+      const diffPct = Math.round((askSqmPrice / s6.median - 1) * 100);
+      const abs     = Math.abs(diffPct);
+      let cls = 'fair', txt = '';
+      if (diffPct <= -5) {
+        cls = 'under';
+        txt = `Utropet ${fmt(askSqmPrice)} kr/m² ligger ${abs}% under 6-månaders medianen (${fmt(s6.median)} kr/m²) — relativt lågt för området.`;
+      } else if (diffPct >= 8) {
+        cls = 'over';
+        txt = `Utropet ${fmt(askSqmPrice)} kr/m² ligger ${abs}% över 6-månaders medianen (${fmt(s6.median)} kr/m²) — högt jämfört med liknande objekt.`;
+      } else {
+        txt = `Utropet ${fmt(askSqmPrice)} kr/m² ligger inom normalspannet (${diffPct >= 0 ? '+' : ''}${diffPct}% mot medianen ${fmt(s6.median)} kr/m²).`;
+      }
+      verdictBox.innerHTML = `<div class="comp-verdict ${cls}">${txt}</div>`;
+    } else {
+      verdictBox.innerHTML = '';
+    }
+
+    // Rendera varje tidsfönster
+    renderCompPeriod('compContent3m', cd.periods?.['3mån'], askSqmPrice);
+    renderCompPeriod('compContent6m', cd.periods?.['6mån'], askSqmPrice);
+    renderCompPeriod('compContent1y', cd.periods?.['1år'],  askSqmPrice);
+
+    // Gatuspecifik data
+    if (cd.streetSales?.length > 0) {
+      document.getElementById('streetTabBtn').style.display = '';
+      renderSalesTable('compContentStreet', cd.streetSales, askSqmPrice,
+        `Försäljningar på ${cd.street || 'gatan'}`);
+    }
+
+    // Visa 6mån som default
+    renderCompPeriod('compContent3m', cd.periods?.['3mån'], askSqmPrice);
+
+    card.style.display = 'block';
+  }
+
+  function renderCompPeriod(elId, stats, askSqmPrice) {
+    const el = document.getElementById(elId);
+    if (!stats || stats.count === 0) {
+      el.innerHTML = '<div class="comp-empty">Ingen data hittades för denna period.</div>';
+      return;
+    }
+    const s = stats;
+    let html = `<div class="comp-stats-row">
+      <div class="comp-stat"><div class="comp-stat-label">Median kr/m²</div><div class="comp-stat-value">${fmt(s.median)}</div></div>
+      <div class="comp-stat"><div class="comp-stat-label">Spann</div><div class="comp-stat-value" style="font-size:12px">${fmt(s.min)} – ${fmt(s.max)}</div></div>
+      <div class="comp-stat"><div class="comp-stat-label">Objekt</div><div class="comp-stat-value">${s.count} st</div></div>
+    </div>`;
+    if (s.avgBidPremium !== null) {
+      const bpCls = s.avgBidPremium > 0 ? 'color:var(--green-text)' : 'color:var(--red-text)';
+      html += `<div style="font-size:12px;color:var(--text-muted);margin-bottom:.75rem">Genomsnittlig budpremie: <span style="${bpCls};font-weight:500">${s.avgBidPremium >= 0 ? '+' : ''}${s.avgBidPremium}%</span></div>`;
+    }
+    el.innerHTML = html;
+  }
+
+  function renderSalesTable(elId, sales, askSqmPrice, title) {
+    const el = document.getElementById(elId);
+    if (!sales || sales.length === 0) { el.innerHTML = '<div class="comp-empty">Ingen gatudata hittades.</div>'; return; }
+    const rows = sales.map(s => {
+      const bp = s.bidPremium;
+      const bpHtml = bp !== null ? `<span class="${bp >= 0 ? 'bid-pos' : 'bid-neg'}">${bp >= 0 ? '+' : ''}${bp}%</span>` : '–';
+      const date = s.soldDate ? s.soldDate.slice(0, 7) : '–';
+      const sqmHtml = s.sqmPrice
+        ? `<span class="comp-sqmprice">${fmt(s.sqmPrice)}</span>${askSqmPrice ? ` <span style="font-size:10px;color:${s.sqmPrice > askSqmPrice ? 'var(--green-text)' : 'var(--red-text)'}"> (${s.sqmPrice > askSqmPrice ? '▼' : '▲'} utrop)</span>` : ''}` : '–';
+      return `<tr>
+        <td>${s.address || '–'}</td>
+        <td>${s.soldPrice ? fmt(s.soldPrice) + ' kr' : '–'}</td>
+        <td>${sqmHtml}</td>
+        <td>${s.sqm ? s.sqm + ' m²' : '–'}</td>
+        <td>${s.rooms || '–'}</td>
+        <td>${bpHtml}</td>
+        <td style="color:var(--text-faint)">${date}</td>
+      </tr>`;
+    }).join('');
+
+    el.innerHTML = `
+      ${title ? `<div class="comp-street-label">${title}</div>` : ''}
+      <table class="comp-table">
+        <thead><tr><th>Adress</th><th>Slutpris</th><th>Kr/m²</th><th>Storlek</th><th>Rum</th><th>Budpremie</th><th>Datum</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  // ── FAKTORGRID ───────────────────────────────────────────
+  function buildFactors(data) {
+    const floor   = parseInt(data.floor) || 2;
+    const hasElev = data.elevator === 'yes';
+    const totalFee  = parseInt(document.getElementById('monthly_fee_total').value) || parseInt(data.monthly_fee) || 0;
+    const listedFee = parseInt(document.getElementById('monthly_fee_listed').value) || parseInt(data.monthly_fee) || 0;
+    const feeDiff   = totalFee > listedFee && listedFee > 0 && (totalFee - listedFee) > 500;
+    const factors = [
+      { label: 'Hiss',         value: hasElev ? 'Finns' : 'Saknas', cls: hasElev ? 'ipos' : floor > 3 ? 'ineg' : 'ineu', note: hasElev ? 'Värdehöjande' : floor > 3 ? 'Värdesänkande' : '' },
+      { label: 'Våning',       value: `${floor}tr`, cls: floor >= 4 ? 'ipos' : floor === 0 ? 'ineg' : 'ineu', note: floor >= 4 ? 'Attraktiv höjd' : floor === 0 ? 'Bottenvåning' : '' },
+      { label: 'Skick',        value: { newly_renovated:'Nyrenoverad',good:'Gott skick',needs_renovation:'Renovering' }[data.condition] || data.condition || '–', cls: 'ineu', note: '' },
+      { label: 'Månadsavgift', value: fmt(totalFee) + ' kr', cls: feeDiff ? 'ineg' : 'ineu', note: feeDiff ? `Annons: ${fmt(listedFee)} — dolda kostnader!` : '' },
+      { label: 'BRF-ekonomi',  value: { healthy:'Sund',medium:'OK',weak:'Svag' }[data.brf_status] || '–', cls: data.brf_status === 'healthy' ? 'ipos' : data.brf_status === 'weak' ? 'ineg' : 'ineu', note: '' },
+    ];
+    document.getElementById('factorsGrid').innerHTML = factors.map(f => `
+      <div class="fc">
+        <div class="fc-label">${f.label}</div>
+        <div class="fc-value ${f.cls}">${f.cls === 'ipos' ? '+' : f.cls === 'ineg' ? '−' : '±'} ${f.value}</div>
+        ${f.note ? `<div class="fc-note ${f.cls}">${f.note}</div>` : ''}
+      </div>`).join('');
+  }
+
+  // ── KÖPARANALYS ──────────────────────────────────────────
+  async function runAnalysis() {
+    const btn        = document.getElementById('analyzeBtn');
+    const listedFee  = parseInt(document.getElementById('monthly_fee_listed').value) || parseInt(document.getElementById('monthly_fee').value) || 0;
+    const totalFee   = parseInt(document.getElementById('monthly_fee_total').value) || listedFee;
+    const observations = document.getElementById('observations').value.trim();
+
+    const data = {
+      address:    document.getElementById('address').value || 'Okänd adress',
+      area:       document.getElementById('area').value || 'Okänt område',
+      sqm:        document.getElementById('sqm').value,
+      rooms:      document.getElementById('rooms').value,
+      asking_price: document.getElementById('asking_price').value,
+      monthly_fee:  listedFee,
+      monthly_fee_total: totalFee,
+      floor:      parseInt(document.getElementById('floor').value) || 2,
+      build_year: document.getElementById('build_year').value,
+      brf_name:   document.getElementById('brf_name').value,
+      brf_debt:   document.getElementById('brf_debt').value,
+      extra_info: document.getElementById('extra_info').value,
+      elevator:   getToggle('elevator'),
+      condition:  getToggle('condition'),
+      orientation: getToggle('orientation'),
+      balcony:    getToggle('balcony'),
+      brf_status: getToggle('brf_status'),
+    };
+
+    btn.disabled = true; btn.textContent = 'Analyserar...';
+    document.getElementById('results').classList.add('visible');
+    buildFactors(data);
+
+    const aEl = document.getElementById('analysisText');
+    aEl.className = 'analysis-body loading';
+    aEl.textContent = 'Beräknar marknadsvärde och skapar köparanalys...';
+    document.getElementById('estPrice').textContent = '–';
+    document.getElementById('priceRange').textContent = '–';
+    document.getElementById('verdictTag').textContent = '–';
+    document.getElementById('verdictTag').className = 'vtag';
+    document.getElementById('riskCard').style.display = 'none';
+
+    const sqmPrice = data.asking_price && data.sqm ? Math.round(data.asking_price / data.sqm) : null;
+    const feeDiff  = totalFee > listedFee ? `OBS: Annonserad avgift är ${fmt(listedFee)} kr/mån men total kostnad inkl tillägg beräknas till ${fmt(totalFee)} kr/mån.` : '';
+
+    // Bygg jämförelsekontext för promtet
+    let compBlock = '';
+    if (comparableData?.periods) {
+      const p = comparableData.periods;
+      const lines = ['BOOLI SLUTPRISJÄMFÖRELSE (liknande bostadsrätter ±30% storlek):'];
+      if (p['3mån']?.count > 0) {
+        const s = p['3mån'];
+        lines.push(`  3 mån: ${s.count} obj · median ${fmt(s.median)} kr/m² · spann ${fmt(s.min)}–${fmt(s.max)}`);
+      }
+      if (p['6mån']?.count > 0) {
+        const s = p['6mån'];
+        lines.push(`  6 mån: ${s.count} obj · median ${fmt(s.median)} kr/m² · spann ${fmt(s.min)}–${fmt(s.max)}`);
+        if (s.avgBidPremium !== null) lines.push(`  Genomsnittlig budpremie: ${s.avgBidPremium >= 0 ? '+' : ''}${s.avgBidPremium}%`);
+      }
+      if (p['1år']?.count > 0) {
+        const s = p['1år'];
+        lines.push(`  1 år:  ${s.count} obj · median ${fmt(s.median)} kr/m²`);
+      }
+      if (sqmPrice && p['6mån']?.median) {
+        const diff = Math.round((sqmPrice / p['6mån'].median - 1) * 100);
+        lines.push(`  Utropets kr/m²: ${fmt(sqmPrice)} — ${diff >= 0 ? '+' : ''}${diff}% mot 6-månaders medianen`);
+      }
+      if (comparableData.streetSales?.length > 0) {
+        lines.push(`  Gatuspecifika försäljningar (${comparableData.street}): ${comparableData.streetSales.length} st`);
+        comparableData.streetSales.slice(0, 5).forEach(s => {
+          lines.push(`    ${s.address || ''} – ${fmt(s.soldPrice)} kr (${fmt(s.sqmPrice)} kr/m²) – ${s.soldDate?.slice(0,7) || ''}`);
+        });
+      }
+      compBlock = lines.join('\n');
+    }
+
+    const prompt = `Du är en oberoende bostadsanalytiker i Sverige. Analysera bostadsannonsen ur ett köparperspektiv.
 
 BOSTADSDATA:
 - Adress: ${data.address}, ${data.area}
 - Storlek: ${data.sqm} kvm, ${data.rooms} rum
-- Utropspris: ${data.asking_price?fmt(data.asking_price)+' kr':'ej angivet'}${sqmPrice?' ('+fmt(sqmPrice)+' kr/kvm)':''}
-- Månadsavgift: ${data.monthly_fee?data.monthly_fee+' kr/mån':'ej angiven'}
-- Våning: ${data.floor}tr | Hiss: ${data.elevator==='yes'?'Ja':'Nej'} | Byggår: ${data.build_year||'okänt'}
-- Skick: ${data.condition} | Läge: ${data.orientation} | Balkong: ${data.balcony}
-BRF: ${data.brf_name||'okänd'} | Skuld: ${data.brf_debt?data.brf_debt+' kr/kvm':'okänd'} | Status: ${data.brf_status}
-Extra: ${data.extra_info||'(ingen)'}
+- Utropspris: ${data.asking_price ? fmt(parseInt(data.asking_price)) + ' kr' : 'ej angivet'}${sqmPrice ? ' (' + fmt(sqmPrice) + ' kr/kvm)' : ''}
+- Annonserad avgift: ${fmt(listedFee)} kr/mån${feeDiff ? '\n- ' + feeDiff : ''}
+- Våning: ${data.floor}tr | Hiss: ${data.elevator === 'yes' ? 'Ja' : 'Nej'} | Byggår: ${data.build_year || 'okänt'}
+- Skick: ${data.condition} | Läge: ${data.orientation || 'Okänt'} | Balkong: ${data.balcony}
+- BRF: ${data.brf_name || 'okänd'} | Skuld: ${data.brf_debt ? fmt(data.brf_debt) + ' kr/kvm' : 'okänd'} | Status: ${data.brf_status}
+- Extra info: ${data.extra_info || '(ingen)'}
+${compBlock ? '\n' + compBlock : ''}
+${imageAnalysisSummary ? '\nBILDANALYS:\n' + imageAnalysisSummary : ''}
+${observations ? '\nEGNA OBSERVATIONER:\n' + observations : ''}
 
-Svara i detta format:
-ESTIMATED_PRICE: [kronor]
-PRICE_LOW: [kronor]
-PRICE_HIGH: [kronor]
+Svara i exakt detta format:
+ESTIMATED_PRICE: [kronor som heltal]
+PRICE_LOW: [kronor som heltal]
+PRICE_HIGH: [kronor som heltal]
 VERDICT: [fair/overpriced/underpriced]
-ANALYS: [4-5 stycken på svenska: 1) kr/kvm-jämförelse mot marknaden 2) BRF-ekonomi och totalkostnad 3) Plus/minus-faktorer 4) Budstrategi och risker 5) Sammanfattning]`;
-  try{
-    const res=await callAPI({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]});
-    const text=res.content?.map(b=>b.text||'').join('')||'';
-    const em=text.match(/ESTIMATED_PRICE:\s*([\d]+)/);
-    const lm=text.match(/PRICE_LOW:\s*([\d]+)/);
-    const hm=text.match(/PRICE_HIGH:\s*([\d]+)/);
-    const vm=text.match(/VERDICT:\s*(\w+)/i);
-    const am=text.match(/ANALYS:\s*([\s\S]+)/i);
-    if(em)document.getElementById('estPrice').textContent=fmt(parseInt(em[1]))+' kr';
-    if(lm&&hm)document.getElementById('priceRange').textContent=`Intervall: ${fmt(parseInt(lm[1]))} – ${fmt(parseInt(hm[1]))} kr`;
-    const v=(vm?.[1]||'').toLowerCase();
-    const tag=document.getElementById('verdictTag');
-    if(v==='fair'){tag.textContent='Rimligt pris';tag.className='vtag tag-fair'}
-    else if(v==='overpriced'){tag.textContent='Högt pris';tag.className='vtag tag-over'}
-    else if(v==='underpriced'){tag.textContent='Under marknad';tag.className='vtag tag-under'}
-    aEl.className='analysis-body';aEl.textContent=am?am[1].trim():text;
-  }catch(e){
-    aEl.className='analysis-body';
-    aEl.textContent='Något gick fel. Kontrollera att API-nyckeln är konfigurerad i Vercel.';
+
+ANALYS:
+[5 stycken:
+1. Kr/kvm-jämförelse mot Booli-data ovan — använd de exakta siffrorna om du har dem. Om data saknas, basera på erfarenhet.
+2. Total månadskostnad för köparen — ränta, amortering, avgift. Lyft fram dolda kostnader om sådana finns.
+3. Plus- och minusfaktorer. Om läget är okänt, nämn det.
+4. Konkret budstrategi baserat på budpremiedata och marknadsnivå.
+5. Sammanfattning]
+
+RISKFAKTORER:
+[4-6 konkreta riskfaktorer och saker att undersöka]`;
+
+    try {
+      const res = await fetch(WORKER + '/', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'analyze', prompt })
+      });
+      const result = await res.json();
+      if (result.error) throw new Error(result.error);
+      const text = result.analysis || '';
+      const em = text.match(/ESTIMATED_PRICE:\s*([\d\s\xa0]+)/);
+      const lm = text.match(/PRICE_LOW:\s*([\d\s\xa0]+)/);
+      const hm = text.match(/PRICE_HIGH:\s*([\d\s\xa0]+)/);
+      const vm = text.match(/VERDICT:\s*(\w+)/i);
+      const am = text.match(/ANALYS:\s*([\s\S]+?)(?=RISKFAKTORER:|$)/i);
+      const rm = text.match(/RISKFAKTORER:\s*([\s\S]+)/i);
+      if (em) document.getElementById('estPrice').textContent = fmt(parseInt(em[1].replace(/\s/g,''))) + ' kr';
+      if (lm && hm) document.getElementById('priceRange').textContent = `Intervall: ${fmt(parseInt(lm[1].replace(/\s/g,'')))} – ${fmt(parseInt(hm[1].replace(/\s/g,'')))} kr`;
+      const v   = (vm?.[1] || '').toLowerCase();
+      const tag = document.getElementById('verdictTag');
+      if (v === 'fair')       { tag.textContent = 'Rimligt pris';   tag.className = 'vtag tag-fair'; }
+      else if (v === 'overpriced')  { tag.textContent = 'Högt pris';      tag.className = 'vtag tag-over'; }
+      else if (v === 'underpriced') { tag.textContent = 'Under marknad';  tag.className = 'vtag tag-under'; }
+      aEl.className = 'analysis-body';
+      aEl.textContent = am ? am[1].trim() : text;
+      if (rm) { document.getElementById('riskCard').style.display = 'block'; document.getElementById('riskText').textContent = rm[1].trim(); }
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+    } catch (e) {
+      aEl.className = 'analysis-body';
+      aEl.textContent = 'Något gick fel: ' + e.message;
+    }
+    btn.disabled = false; btn.textContent = 'Analysera bostaden →';
   }
-  btn.disabled=false;btn.textContent='Analysera bostaden →';
-}
 </script>
 </body>
 </html>
