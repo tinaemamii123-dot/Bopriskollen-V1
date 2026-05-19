@@ -430,18 +430,42 @@ var SIZE_RANK = {
   "small": 1,
   "thumbnail": -1
 };
+// Rangordning för numeriska storlekar (Vitec/maklarobjekt.se: 400, 1200, 2048)
+function numericSizeRank(u) {
+  const m = u.match(/\/(\d+)_[^/]+\.(?:jpg|jpeg|png|webp)/i);
+  if (!m) return null;
+  return parseInt(m[1]); // högre = bättre
+}
 function deduplicateSizedImages(urls) {
-  const toKey = /* @__PURE__ */ __name((u) => u.replace(/\.\._(?:4k|hd|thumb|original|large|small|medium)$/i, "").replace(/[?&](?:w|width|size|format|quality)=[^&]*/gi, "").replace(/-\d+x\d+(?=\.\w+$)/, "").replace(/\/(?:Small|Medium|Large|Thumbnail|Original)\//gi, "/SIZE/"), "toKey");
+  const toKey = /* @__PURE__ */ __name((u) => {
+    return u
+      // Vitec: /1200_bildid.jpg -> /_bildid.jpg  (ta bort ledande storlek)
+      .replace(/\/\d+_([^/]+\.(?:jpg|jpeg|png|webp))/gi, "/_$1")
+      // Standard suffix: .._4k, .._hd etc
+      .replace(/\.\._(?:4k|hd|thumb|original|large|small|medium)$/i, "")
+      // Query-param storlekar: ?w=1200&quality=80
+      .replace(/[?&](?:w|width|size|format|quality)=[^&]*/gi, "")
+      // Responsive suffix: -1200x800.jpg
+      .replace(/-\d+x\d+(?=\.\w+$)/, "")
+      // Sökvägsbaserade: /Small/, /Medium/, /Large/ etc
+      .replace(/\/(?:Small|Medium|Large|Thumbnail|Original)\//gi, "/SIZE/");
+  }, "toKey");
   const best = /* @__PURE__ */ new Map();
   for (const u of urls) {
     const key = toKey(u);
     let rank = 1;
-    const suf = u.match(/\.\._(\w+)$/i)?.[1]?.toLowerCase();
-    if (suf !== void 0) {
-      rank = SIZE_RANK["_" + suf] ?? 1;
+    // Försök numerisk storlek först (Vitec)
+    const numRank = numericSizeRank(u);
+    if (numRank !== null) {
+      rank = numRank;
     } else {
-      const seg = u.match(/\/(?:Small|Medium|Large|Thumbnail|Original)\//i)?.[0]?.replace(/\//g, "").toLowerCase();
-      if (seg) rank = SIZE_RANK[seg] ?? 1;
+      const suf = u.match(/\.\._(\w+)$/i)?.[1]?.toLowerCase();
+      if (suf !== void 0) {
+        rank = SIZE_RANK["_" + suf] ?? 1;
+      } else {
+        const seg = u.match(/\/(?:Small|Medium|Large|Thumbnail|Original)\//i)?.[0]?.replace(/\//g, "").toLowerCase();
+        if (seg) rank = SIZE_RANK[seg] ?? 1;
+      }
     }
     if (rank < 0) continue;
     if (!best.has(key) || rank > best.get(key).rank) {
@@ -664,10 +688,24 @@ async function handleAnalyze(request, env) {
   if (Array.isArray(body.messages)) {
     for (const msg of body.messages) {
       if (!Array.isArray(msg.content)) continue;
-      const resolved = await Promise.all(
-        msg.content.map(async (block) => {
-          if (block.type !== "image" || block.source?.type !== "url") {
-            return block;
+      // Sekventiell batchning — max 10 parallella fetch åt gången
+      // Löser Cloudflare's subrequest-gräns utan att begränsa antal bilder
+      const BATCH_SIZE = 10;
+      const allBlocks = msg.content;
+      const resolved = [];
+      for (let bStart = 0; bStart < allBlocks.length; bStart += BATCH_SIZE) {
+        const batch = allBlocks.slice(bStart, bStart + BATCH_SIZE);
+        const batchResults = await Promise.all(
+          batch.map(async (block) => {
+          if (block.type !== "image") return block;
+          // URL-bilder: normalisera storlek och skicka direkt till Anthropic — 0 subrequests
+          if (block.source?.type === "url") {
+            diag.requested++;
+            diag.loaded++;
+            // Vitec/maklarobjekt.se: byt 2048_ → 1200_ (håller sig under 2000px-gränsen)
+            let imageUrl = block.source.url;
+            imageUrl = imageUrl.replace(/\/2048_([^/]+\.(?:jpg|jpeg|png|webp))/gi, "/1200_$1");
+            return { ...block, source: { type: "url", url: imageUrl } };
           }
           diag.requested++;
           try {
@@ -715,7 +753,9 @@ async function handleAnalyze(request, env) {
             return null;
           }
         })
-      );
+        );
+        resolved.push(...batchResults.filter(Boolean));
+      }
       msg.content = resolved.filter(Boolean);
     }
   }
