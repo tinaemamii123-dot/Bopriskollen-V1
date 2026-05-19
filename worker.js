@@ -347,6 +347,28 @@ async function parseBroker(url, html) {
     const bm = scanText.match(/(?:förening|brf|bostadsrättsförening)[:\s]+([A-ZÅÄÖ][^<\n,]{3,50})/i);
     if (bm) result.metadata.brf = bm[1].trim();
   }
+    // Hiss: matchar "Hiss finns", "Hiss: Ja", "med hiss" etc från faktaruta
+  if (result.metadata.hasElevator === undefined || result.metadata.hasElevator === null) {
+    if (/hiss\s+finns|med\s+hiss|hiss\s+i\s+fastigheten|hiss:\s*ja|hiss[^\w]{0,10}ja/i.test(scanText)) {
+      result.metadata.hasElevator = true;
+    } else if (/utan\s+hiss|ingen\s+hiss|hiss\s+saknas|hiss:\s*nej/i.test(scanText)) {
+      result.metadata.hasElevator = false;
+    }
+  }
+  // Balkong
+  if (result.metadata.hasBalcony === undefined || result.metadata.hasBalcony === null) {
+    result.metadata.hasBalcony = /balkong|uteplats/i.test(scanText);
+  }
+  // Description: extrahera annonstext (längsta meningarna)
+  if (!result.metadata.description) {
+    const stripped = html
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[\s\S]*?<\/style>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ');
+    const paraMatch = stripped.match(/[A-ZÅÄÖ][^.!?]{150,800}[.!?]/g);
+    if (paraMatch) result.metadata.description = paraMatch.slice(0, 3).join(' ').trim().substring(0, 800);
+  }
   return result;
 }
 __name(parseBroker, "parseBroker");
