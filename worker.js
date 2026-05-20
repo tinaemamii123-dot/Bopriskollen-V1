@@ -719,19 +719,13 @@ async function handleAnalyze(request, env) {
         const batch = allBlocks.slice(bStart, bStart + BATCH_SIZE);
         const batchResults = await Promise.all(
           batch.map(async (block) => {
-          if (block.type !== "image") return block;
-          // URL-bilder: normalisera storlek och skicka direkt till Anthropic — 0 subrequests
-          if (block.source?.type === "url") {
-            diag.requested++;
-            diag.loaded++;
-            // Vitec/maklarobjekt.se: byt 2048_ → 1200_ (håller sig under 2000px-gränsen)
-            let imageUrl = block.source.url;
-            imageUrl = imageUrl.replace(/\/2048_([^/]+\.(?:jpg|jpeg|png|webp))/gi, "/1200_$1");
-            return { ...block, source: { type: "url", url: imageUrl } };
+          if (block.type !== "image" || block.source?.type !== "url") {
+            return block;
           }
           diag.requested++;
           try {
-            const imgUrl = block.source.url;
+            let imgUrl = block.source.url;
+            imgUrl = imgUrl.replace(/\/2048_([^/]+\.(?:jpg|jpeg|png|webp))/gi, "/1200_$1");
             const imgRes = await fetch(imgUrl, {
               headers: {
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
